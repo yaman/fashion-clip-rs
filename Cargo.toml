@@ -1,0 +1,26 @@
+[package]
+name = "embedding_rust_ort"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ndarray = "0.15.0"
+itertools = "0.11.0"
+num_cpus = "1.15.0"
+ort = { git = "https://github.com/pykeio/ort.git", features = ["cuda"] }
+prost = "0.12.1"
+tokenizers = "0.14.0"
+tokio = { version = "1.26.0", features = ["macros", "rt-multi-thread"] }
+tonic = "0.10.2"
+image = "0.24.6"
+clap = { version = "4.2.4", features = ["derive"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+
+
+[build-dependencies]
+tonic-build = "0.10.2"
+
+[test-dependencies]
+tonic-build = "0.10.2"

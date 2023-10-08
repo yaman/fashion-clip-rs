@@ -1,0 +1,67 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'embedding_rust_ort'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=embedding_rust_ort",
+                    "--package=embedding_rust_ort"
+                ],
+                "filter": {
+                    "name": "embedding_rust_ort",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "LD_LIBRARY_PATH": "${workspaceFolder}/target/debug"
+            }
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'embedding_rust_ort'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=embedding_rust_ort",
+                    "--package=embedding_rust_ort"
+                ],
+                "filter": {
+                    "name": "embedding_rust_ort",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'encoder_service_test'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=encoder_service_test",
+                    "--package=embedding_rust_ort"
+                ],
+                "filter": {
+                    "name": "encoder_service_test",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

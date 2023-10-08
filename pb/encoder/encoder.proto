@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package encoder;
+
+service Encoder {
+  rpc EncodeText (EncodeTextRequest) returns (EncoderResponse);
+  rpc EncodeImage (EncodeImageRequest) returns (EncoderResponse);
+}
+
+message EncodeTextRequest {
+  repeated string texts = 1;
+}
+
+message EncodeImageRequest {
+  repeated bytes images = 2;
+}
+
+message EncoderResponse {
+  repeated Embedding embedding = 3;
+}
+
+message Embedding {
+  repeated float point = 4;
+}
