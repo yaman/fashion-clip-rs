@@ -35,9 +35,9 @@ impl EncoderService {
         input_image_size: usize,
     ) -> Result<EncoderService, Box<dyn std::error::Error + Send + Sync>> {
         let model_path = if vision_mode {
-            "fashion-clip-onnx/model.onnx"
+            "clip_visual.onnx"
         } else {
-            "fashion-clip-onnx/model.onnx"
+            "clip_textual.onnx"
         };
         let tokenizer_path = "fashion-clip-onnx/tokenizer.json";
 
@@ -105,7 +105,7 @@ impl EncoderService {
             })
             .concat();
 
-        let mask = CowArray::from(Array2::from_shape_vec(
+        let _mask = CowArray::from(Array2::from_shape_vec(
             (text.len(), attention_mask_vector.len() / text.len()),
             attention_mask_vector,
         )?)
@@ -114,7 +114,7 @@ impl EncoderService {
         let session = &self.encoder;
         let outputs: Vec<Value<'_>> = session.run(vec![
             Value::from_array(session.allocator(), &ids)?,
-            Value::from_array(session.allocator(), &mask)?,
+            // Value::from_array(session.allocator(), &mask)?,
         ])?;
         let binding = outputs[0].try_extract()?;
         let embeddings = binding.view();

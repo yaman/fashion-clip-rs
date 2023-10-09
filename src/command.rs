@@ -21,9 +21,6 @@ pub mod commmand {
     }
 
     impl Args {
-        pub fn parse() -> Self {
-            Self::parse()
-        }
         pub fn get_listen(&self) -> String {
             self.listen.clone()
         }
