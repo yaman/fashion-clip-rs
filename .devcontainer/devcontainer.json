@@ -1,0 +1,47 @@
+{
+    "name": "Dockerfile",
+    "context": "..",
+    "dockerFile": "./Dockerfile",
+    "postCreateCommand": "chmod +x ./.devcontainer/setup.sh && sh ./.devcontainer/setup.sh",
+    "runArgs": [
+        // if you have a GPU, you can use it inside the container
+        "--gpus=all",
+        // speeds up pytorch data loading
+        "--ipc=host"
+    ],
+    "mounts": [
+        // important: see respective sections in setup.sh
+        // uncomment if you want to use your local aws credentials
+        //"source=${env:HOME}${env:USERPROFILE}/.aws,target=/root/.aws,type=bind",
+        // uncomment if you want to use the host docker socket inside the container
+        //"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                // official docker extension to control docker on the host
+                "ms-azuretools.vscode-docker",
+                // github copilot
+                "github.copilot",
+                // python language support
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                // sort python imports
+                "ms-python.isort",
+                // jupyter
+                "ms-toolsai.jupyter",
+                "ms-toolsai.vscode-jupyter-cell-tags",
+                "ms-toolsai.jupyter-renderers",
+                "ms-toolsai.vscode-jupyter-slideshow",
+                // autocomplete filenames
+                "christian-kohler.path-intellisense",
+                // displays system usage in the bottom tray
+                "mutantdino.resourcemonitor",
+                // yaml language support
+                "redhat.vscode-yaml",
+                "rust-lang.rust-analyzer"
+                // "add.your.own.favorites",
+            ]
+        }
+    }
+}
