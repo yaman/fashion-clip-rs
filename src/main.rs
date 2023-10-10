@@ -26,10 +26,10 @@ use ndarray::IxDyn;
 extern crate num_cpus;
 
 #[derive(Parser, Debug, Clone)]
-#[command(author = "Ro <rorical@shugetsu.space>", version = "0.1", about = "Clip service", long_about = None)]
+#[command(author = "canavar", version = "0.1", about = "Embedding Service", long_about = None)]
 struct Args {
     /// Address to listen
-    #[arg(short, long, default_value = "[::1]:50051")]
+    #[arg(short, long, default_value = "0.0.0.0:50051")]
     listen: String,
 
     /// Model type, default text

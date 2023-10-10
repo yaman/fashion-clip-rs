@@ -11,7 +11,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_encode_text() -> Result<(), Box<dyn std::error::Error>> {
-        let channel = Channel::from_static("http://[::1]:50051").connect().await?;
+        let channel = Channel::from_static("http://0.0.0.0:50051")
+            .connect()
+            .await?;
 
         // Create a client
         let mut client = EncoderClient::new(channel);
