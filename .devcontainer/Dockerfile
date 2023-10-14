@@ -14,8 +14,7 @@ ENV PYTHONUNBUFFERED=1
 ENV DEBIAN_FRONTEND=noninteractive
 ENV CONDA_AUTO_UPDATE_CONDA=false
 
-RUN apt update
-RUN apt install -y bash \
+RUN apt update && apt install -y bash \
     build-essential \
     git \
     ca-certificates \
@@ -36,6 +35,7 @@ RUN apt install -y bash \
     tzdata \
     zsh \
     protobuf-compiler \
+    pkg-config \
     && rm -rf /var/lib/apt/lists
 
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -86,6 +86,12 @@ RUN set -eux; \
     cargo --version; \
     rustc --version;
 
-RUN rustup component add rustfmt
+RUN rustup component add rustfmt rust-src rust-analysis clippy
+
+RUN apt update && apt install -y libssl-dev
+
+RUN cargo install cargo-watch cargo-edit evcxr_jupyter evcxr evcxr_repl 
+
+RUN evcxr_jupyter --install
 
 CMD ["/bin/zsh"]

@@ -6,18 +6,24 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ndarray = "0.15.0"
+ndarray = "0.15.6"
 itertools = "0.11.0"
-num_cpus = "1.15.0"
+num_cpus = "1.16.0"
 ort = { git = "https://github.com/pykeio/ort.git", features = ["cuda"] }
 prost = "0.12.1"
-tokenizers = "0.14.0"
-tokio = { version = "1.26.0", features = ["macros", "rt-multi-thread"] }
+tokenizers = "0.14.1"
+tokio = { version = "1.33.0", features = ["macros", "rt-multi-thread"] }
 tonic = "0.10.2"
-image = "0.24.6"
-clap = { version = "4.2.4", features = ["derive"] }
+image = "0.24.7"
+clap = { version = "4.4.6", features = ["derive"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+cargo-watch = "8.4.1"
 
 
 [build-dependencies]
 tonic-build = "0.10.2"
+
+[dev-dependencies]
+pact_consumer = "1.0.4"
+pact_matching = "1.1.6"
+prost = "0.12.1"

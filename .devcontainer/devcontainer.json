@@ -39,7 +39,8 @@
                 "mutantdino.resourcemonitor",
                 // yaml language support
                 "redhat.vscode-yaml",
-                "rust-lang.rust-analyzer"
+                "rust-lang.rust-analyzer",
+                "vadimcn.vscode-lldb"
                 // "add.your.own.favorites",
             ]
         }

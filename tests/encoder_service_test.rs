@@ -11,7 +11,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_encode_text() -> Result<(), Box<dyn std::error::Error>> {
-        let channel = Channel::from_static("http://0.0.0.0:50051")
+        let channel = Channel::from_static("http://0.0.0.0:50052")
             .connect()
             .await?;
 

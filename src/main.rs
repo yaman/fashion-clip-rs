@@ -29,7 +29,7 @@ extern crate num_cpus;
 #[command(author = "canavar", version = "0.1", about = "Embedding Service", long_about = None)]
 struct Args {
     /// Address to listen
-    #[arg(short, long, default_value = "0.0.0.0:50051")]
+    #[arg(short, long, default_value = "0.0.0.0:50052")]
     listen: String,
 
     /// Model type, default text
@@ -41,7 +41,7 @@ struct Args {
     input_image_size: usize,
 
     /// Whether to pad and truncate the input text token sequence to 77
-    #[arg(short, long, default_value_t = false)]
+    #[arg(short, long, default_value_t = true)]
     pad_token_sequence: bool,
 }
 
@@ -59,11 +59,7 @@ impl EncoderService {
     ) -> Result<EncoderService, Box<dyn std::error::Error + Send + Sync>> {
         let vision_mode = args.vision_mode;
 
-        let model_path = if vision_mode {
-            "fashion-clip-onnx/model.onnx"
-        } else {
-            "fashion-clip-onnx/model.onnx"
-        };
+        let model_path = "fashion-clip-onnx/model.onnx";
         let tokenizer_path = "fashion-clip-onnx/tokenizer.json";
 
         let mut tokenizer = Tokenizer::from_file(tokenizer_path)?;

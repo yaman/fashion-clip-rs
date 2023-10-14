@@ -10,3 +10,12 @@ bandit          # security analysis
 read-version
 wheel
 setuptools
+
+# install onnx
+optimum[exporters]
+transformers[onnx]
+onnxruntime-gpu  
+torchsummary 
+onnxscript 
+tqdm
+
