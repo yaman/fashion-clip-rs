@@ -40,7 +40,8 @@
                 // yaml language support
                 "redhat.vscode-yaml",
                 "rust-lang.rust-analyzer",
-                "vadimcn.vscode-lldb"
+                "vadimcn.vscode-lldb",
+                "serayuzgur.crates"
                 // "add.your.own.favorites",
             ]
         }

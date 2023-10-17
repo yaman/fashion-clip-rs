@@ -1,11 +1,11 @@
+mod args;
+mod encoder_service;
+
 use std::io::Cursor;
 use std::sync::Arc;
-use tonic::{transport::Server, Request, Response, Status};
-pub mod encoder {
-    tonic::include_proto!("encoder");
-}
-use encoder::encoder_server::{Encoder, EncoderServer};
-use encoder::{Embedding, EncodeTextRequest, EncoderResponse};
+use tonic::transport::Server;
+
+use encoder_service::encoder::encoder_server::EncoderServer;
 
 use ndarray::{Array2, Array4, ArrayD, CowArray, Dim};
 use ort::session::Session;
@@ -17,33 +17,15 @@ use tokenizers::{PaddingDirection, PaddingParams, PaddingStrategy};
 extern crate image;
 use image::io::Reader as ImageReader;
 
-use crate::encoder::EncodeImageRequest;
 use clap::Parser;
 use image::imageops::FilterType;
 use image::GenericImageView;
 use ndarray::IxDyn;
 
+use args::Args;
+
 extern crate num_cpus;
 
-#[derive(Parser, Debug, Clone)]
-#[command(author = "canavar", version = "0.1", about = "Embedding Service", long_about = None)]
-struct Args {
-    /// Address to listen
-    #[arg(short, long, default_value = "0.0.0.0:50052")]
-    listen: String,
-
-    /// Model type, default text
-    #[arg(short, long, default_value_t = false)]
-    vision_mode: bool,
-
-    /// Vision model input image size, default 224
-    #[arg(short, long, default_value_t = 224)]
-    input_image_size: usize,
-
-    /// Whether to pad and truncate the input text token sequence to 77
-    #[arg(short, long, default_value_t = true)]
-    pad_token_sequence: bool,
-}
 
 pub struct EncoderService {
     tokenizer: Tokenizer,
@@ -202,41 +184,6 @@ impl EncoderService {
     }
 }
 
-#[tonic::async_trait]
-impl Encoder for EncoderService {
-    async fn encode_text(
-        &self,
-        request: Request<EncodeTextRequest>,
-    ) -> Result<Response<EncoderResponse>, Status> {
-        if self.vision_mode {
-            return Err(Status::invalid_argument("wrong model is loaded"));
-        }
-        let texts = &request.get_ref().texts;
-        return match self._process_text(texts) {
-            Ok(d) => {
-                let embedding = d.into_iter().map(|i| Embedding { point: i }).collect();
-                Ok(Response::new(EncoderResponse { embedding }))
-            }
-            Err(e) => Err(Status::internal(format!("{:?}", e))),
-        };
-    }
-    async fn encode_image(
-        &self,
-        request: Request<EncodeImageRequest>,
-    ) -> Result<Response<EncoderResponse>, Status> {
-        if !self.vision_mode {
-            return Err(Status::invalid_argument("wrong model is loaded"));
-        }
-        let images = &request.get_ref().images;
-        return match self._process_image(images) {
-            Ok(d) => {
-                let embedding = d.into_iter().map(|i| Embedding { point: i }).collect();
-                Ok(Response::new(EncoderResponse { embedding }))
-            }
-            Err(e) => Err(Status::internal(format!("{:?}", e))),
-        };
-    }
-}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
