@@ -41,7 +41,8 @@
                 "redhat.vscode-yaml",
                 "rust-lang.rust-analyzer",
                 "vadimcn.vscode-lldb",
-                "serayuzgur.crates"
+                "serayuzgur.crates",
+                "github.heygithub"
                 // "add.your.own.favorites",
             ]
         }

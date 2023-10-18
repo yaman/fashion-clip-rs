@@ -1,6 +1,7 @@
 FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04
 
 ENV PYTHON_VERSION=3.11
+ENV TZ=Europe/Istanbul
 
 ENV PATH /opt/conda/bin:$PATH
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/lib"
@@ -93,5 +94,12 @@ RUN apt update && apt install -y libssl-dev
 RUN cargo install cargo-watch cargo-edit evcxr_jupyter evcxr evcxr_repl 
 
 RUN evcxr_jupyter --install
+
+RUN wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+
+RUN dpkg -i packages-microsoft-prod.deb
+
+RUN apt-get install apt-transport-https -y && apt-get update && apt-get install msopenjdk-21 -y
+
 
 CMD ["/bin/zsh"]
