@@ -2,12 +2,11 @@ mod args;
 mod encoder;
 mod encoder_service;
 
-use tonic::transport::Server;
 use encoder_service::encoder::encoder_server::EncoderServer;
 use ort::{Environment, ExecutionProvider};
+use tonic::transport::Server;
 
 use clap::Parser;
-
 
 use args::Args;
 use encoder::EncoderService;
@@ -28,11 +27,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         .build()?
         .into_arc();
 
-    println!(
-        "Listening at {:?} with {} mode.",
-        addr,
-        if args.vision_mode { "vision" } else { "text" }
-    );
+    println!("Listening at {:?}", addr);
 
     let server = EncoderService::new(&environment, args.clone())?;
 

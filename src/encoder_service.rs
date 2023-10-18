@@ -6,8 +6,9 @@ pub mod encoder {
 
 use crate::EncoderService;
 
-use self::encoder::{encoder_server::Encoder, EncodeTextRequest, EncoderResponse, Embedding, EncodeImageRequest};
-
+use self::encoder::{
+    encoder_server::Encoder, Embedding, EncodeImageRequest, EncodeTextRequest, EncoderResponse,
+};
 
 #[tonic::async_trait]
 impl Encoder for EncoderService {

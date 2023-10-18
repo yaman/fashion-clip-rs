@@ -7,10 +7,6 @@ pub struct Args {
     #[arg(short, long, default_value = "0.0.0.0:50052")]
     pub listen: String,
 
-    /// Model type, default text
-    #[arg(short, long, default_value_t = false)]
-    pub vision_mode: bool,
-
     /// Vision model input image size, default 224
     #[arg(short, long, default_value_t = 224)]
     pub input_image_size: usize,

@@ -1,0 +1,8 @@
+# Use the default Rustfmt configuration
+version = "Two"
+
+# Use the community recommended settings
+max_width = 100
+tab_spaces = 4
+newline_style = "Unix"
+reorder_imports = true

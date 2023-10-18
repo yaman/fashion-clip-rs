@@ -1,24 +1,26 @@
+// External crates
+extern crate image;
+extern crate num_cpus;
 
-use crate::args::Args;
+// Standard library
 use std::io::Cursor;
 use std::sync::Arc;
 
-use ndarray::{Array2, Array4, ArrayD, CowArray, Dim};
+// Crate modules
+use crate::args::Args;
+
+// External libraries
+use image::imageops::FilterType;
+use image::io::Reader as ImageReader;
+use image::GenericImageView;
+use ndarray::{Array2, Array4, ArrayD, CowArray, Dim, IxDyn};
 use ort::session::Session;
 use ort::{Environment, GraphOptimizationLevel, SessionBuilder, Value};
 use tokenizers::tokenizer::Tokenizer;
-
-use itertools::Itertools;
 use tokenizers::{PaddingDirection, PaddingParams, PaddingStrategy};
-extern crate image;
-use image::io::Reader as ImageReader;
 
-use image::imageops::FilterType;
-use image::GenericImageView;
-use ndarray::IxDyn;
-
-extern crate num_cpus;
-
+// Other
+use itertools::Itertools;
 
 pub struct EncoderService {
     tokenizer: Tokenizer,
@@ -30,8 +32,7 @@ impl EncoderService {
     pub fn new(
         environment: &Arc<Environment>,
         args: Args,
-    ) -> Result<EncoderService, Box<dyn std::error::Error + Send + Sync>> {
-
+    ) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
         let model_path = "fashion-clip-onnx/model.onnx";
         let tokenizer_path = "fashion-clip-onnx/tokenizer.json";
 
@@ -83,22 +84,18 @@ impl EncoderService {
             .map(|i| i.get_ids().iter().map(|b| *b as i64).collect())
             .concat();
 
-        let input_ids_vector = CowArray::from(Array2::from_shape_vec(
-            (text.len(), input_ids_vector.len() / text.len()),
-            input_ids_vector,
-        )?)
-        .into_dyn();
+        let ids_shape = (text.len(), input_ids_vector.len() / text.len());
+        let input_ids_vector =
+            CowArray::from(Array2::from_shape_vec(ids_shape, input_ids_vector)?).into_dyn();
 
         let attention_mask_vector: Vec<i64> = preprocessed
             .iter()
             .map(|i| i.get_attention_mask().iter().map(|b| *b as i64).collect())
             .concat();
 
-        let attention_mask_vector = CowArray::from(Array2::from_shape_vec(
-            (text.len(), attention_mask_vector.len() / text.len()),
-            attention_mask_vector,
-        )?)
-        .into_dyn();
+        let mask_shape = (text.len(), attention_mask_vector.len() / text.len());
+        let attention_mask_vector =
+            CowArray::from(Array2::from_shape_vec(mask_shape, attention_mask_vector)?).into_dyn();
 
         let session = &self.encoder;
         let outputs = session.run(vec![
@@ -111,10 +108,14 @@ impl EncoderService {
         let binding = outputs[output_text_embed_index].try_extract()?;
         let embeddings = binding.view();
 
-        let seq_len = embeddings.shape().get(1).ok_or("not")?;
+        let seq_len = embeddings
+            .shape()
+            .get(1)
+            .ok_or("cannot find seq_len with index 1 in text embeddings")?;
 
         Ok(embeddings
-            .iter().copied()
+            .iter()
+            .copied()
             .chunks(*seq_len)
             .into_iter()
             .map(|b| b.collect())
@@ -161,14 +162,17 @@ impl EncoderService {
         let binding = outputs[0].try_extract()?;
         let embeddings = binding.view();
 
-        let seq_len = embeddings.shape().get(1).unwrap();
+        let seq_len = embeddings
+            .shape()
+            .get(1)
+            .ok_or("cannot find seq_len with index 1 for image embeddings")?;
 
         Ok(embeddings
-            .iter().copied()
+            .iter()
+            .copied()
             .chunks(*seq_len)
             .into_iter()
             .map(|b| b.collect())
             .collect())
     }
 }
-
