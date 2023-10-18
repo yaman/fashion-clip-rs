@@ -15,9 +15,6 @@ impl Encoder for EncoderService {
         &self,
         request: Request<EncodeTextRequest>,
     ) -> Result<Response<EncoderResponse>, Status> {
-        if self.vision_mode {
-            return Err(Status::invalid_argument("wrong model is loaded"));
-        }
         let texts = &request.get_ref().texts;
         return match self._process_text(texts) {
             Ok(d) => {
@@ -31,9 +28,6 @@ impl Encoder for EncoderService {
         &self,
         request: Request<EncodeImageRequest>,
     ) -> Result<Response<EncoderResponse>, Status> {
-        if !self.vision_mode {
-            return Err(Status::invalid_argument("wrong model is loaded"));
-        }
         let images = &request.get_ref().images;
         return match self._process_image(images) {
             Ok(d) => {

@@ -15,6 +15,7 @@ ENV PYTHONUNBUFFERED=1
 ENV DEBIAN_FRONTEND=noninteractive
 ENV CONDA_AUTO_UPDATE_CONDA=false
 
+
 RUN apt update && apt install -y bash \
     build-essential \
     git \
@@ -37,11 +38,19 @@ RUN apt update && apt install -y bash \
     zsh \
     protobuf-compiler \
     pkg-config \
+    libssl-dev \
+    apt-transport-https \
     && rm -rf /var/lib/apt/lists
 
-RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
-RUN chsh -s /usr/bin/zsh
+RUN curl -o packages-microsoft-prod.deb https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb
+
+RUN dpkg -i packages-microsoft-prod.deb
+
+RUN apt update && apt install -y  bash \
+    msopenjdk-21 \
+    && rm -rf /var/lib/apt/lists \
+    && rm packages-microsoft-prod.deb
 
 # Install Miniconda and create main env
 ADD https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh miniconda3.sh
@@ -89,17 +98,24 @@ RUN set -eux; \
 
 RUN rustup component add rustfmt rust-src rust-analysis clippy
 
-RUN apt update && apt install -y libssl-dev
-
 RUN cargo install cargo-watch cargo-edit evcxr_jupyter evcxr evcxr_repl 
 
 RUN evcxr_jupyter --install
 
-RUN wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+RUN apt update && apt install -y  bash \
+    libtinfo5 \
+    && rm -rf /var/lib/apt/lists
 
-RUN dpkg -i packages-microsoft-prod.deb
+RUN chown -R 1000:1000 $RUSTUP_HOME $CARGO_HOME
 
-RUN apt-get install apt-transport-https -y && apt-get update && apt-get install msopenjdk-21 -y
+RUN groupadd -g 1000 canavar && \
+    useradd -u 1000 -g canavar -s /bin/zsh -m canavar && \
+    usermod -aG sudo canavar
+    
+USER canavar
 
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
-CMD ["/bin/zsh"]
+ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/
+
+CMD ["/bin/zsh", "-c", "tmux"]

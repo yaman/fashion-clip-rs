@@ -1,6 +1,7 @@
 {
     "name": "Dockerfile",
     "context": "..",
+    "remoteUser": "1000:1000",
     "dockerFile": "./Dockerfile",
     "postCreateCommand": "chmod +x ./.devcontainer/setup.sh && sh ./.devcontainer/setup.sh",
     "runArgs": [
@@ -42,7 +43,8 @@
                 "rust-lang.rust-analyzer",
                 "vadimcn.vscode-lldb",
                 "serayuzgur.crates",
-                "github.heygithub"
+                "github.heygithub",
+                "codeium.codeium"
                 // "add.your.own.favorites",
             ]
         }
