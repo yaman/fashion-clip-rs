@@ -19,7 +19,7 @@ impl Encoder for EncoderService {
         let texts = &request.get_ref().texts;
         return match self._process_text(texts) {
             Ok(d) => {
-                let embedding = d.into_iter().map(|i| Embedding { point: i }).collect();
+                let embedding = d.into_iter().map(|i| Embedding { point: vec![i] }).collect();
                 Ok(Response::new(EncoderResponse { embedding }))
             }
             Err(e) => Err(Status::internal(format!("{:?}", e))),

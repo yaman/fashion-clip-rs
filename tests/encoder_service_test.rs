@@ -5,15 +5,10 @@ mod tests {
         tonic::include_proto!("encoder");
     }
 
-    use std::sync::Arc;
-
     use encoder::encoder_client::EncoderClient;
     use encoder::EncodeTextRequest;
-
-    use ort::{Environment, ExecutionProvider};
-    use tonic::transport::Channel;
-
     use pretty_assertions::assert_eq;
+    use tonic::transport::Channel;
 
     #[tokio::test]
     async fn test_encode_text() -> Result<(), Box<dyn std::error::Error>> {
@@ -38,7 +33,7 @@ mod tests {
 
         // Create a request
         let request = tonic::Request::new(EncodeTextRequest {
-            texts: vec!["Hello, world!".into()],
+            texts: vec!["This is an example sentence.".into()],
         });
 
         // Send the request
@@ -46,7 +41,21 @@ mod tests {
 
         // Print the response
         println!("RESPONSE={:?}", response);
-        assert_eq!(response.embedding.len() > 100, true);
+        assert_eq!(response.embedding.len() == 512, false);
+        // assert_eq!(
+        //     response.embedding[0..5]
+        //         .iter()
+        //         .flat_map(|e| e.point.clone())
+        //         .collect::<Vec<_>>()
+        //         == vec![
+        //             -1.26431495e-01,
+        //             1.03924334e-01,
+        //             -9.06252265e-02,
+        //             -1.16209365e-01,
+        //             -1.91177040e-01
+        //         ],
+        //     true
+        // );
 
         Ok(())
     }

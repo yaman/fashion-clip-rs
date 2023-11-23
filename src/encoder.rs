@@ -13,11 +13,10 @@ use crate::args::Args;
 use image::imageops::FilterType;
 use image::io::Reader as ImageReader;
 use image::GenericImageView;
-use ndarray::{Array2, Array4, ArrayD, CowArray, Dim, IxDyn};
+use ndarray::{Array2, Array4, CowArray, Dim};
 use ort::session::Session;
 use ort::{Environment, GraphOptimizationLevel, SessionBuilder, Value};
 use tokenizers::tokenizer::Tokenizer;
-use tokenizers::{PaddingDirection, PaddingParams, PaddingStrategy};
 
 // Other
 use itertools::Itertools;
@@ -33,17 +32,14 @@ impl EncoderService {
         environment: &Arc<Environment>,
         args: Args,
     ) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
-        let model_path = "fashion-clip-onnx/model.onnx";
-        let tokenizer_path = "fashion-clip-onnx/tokenizer.json";
+        let model_path = "combined_model.onnx";
+        let tokenizer_path = "sentence-transformers/clip-ViT-B-32-multilingual-v1";
 
-        let mut tokenizer = Tokenizer::from_file(tokenizer_path)?;
-        tokenizer.with_padding(Some(PaddingParams {
-            strategy: if args.pad_token_sequence {
-                PaddingStrategy::Fixed(77)
-            } else {
-                PaddingStrategy::BatchLongest
-            },
-            direction: PaddingDirection::Right,
+        let mut tokenizer = Tokenizer::from_pretrained(tokenizer_path, None)?;
+
+        tokenizer.with_padding(Some(tokenizers::PaddingParams {
+            strategy: tokenizers::PaddingStrategy::BatchLongest,
+            direction: tokenizers::PaddingDirection::Right,
             pad_to_multiple_of: None,
             pad_id: 0,
             pad_type_id: 0,
@@ -67,17 +63,8 @@ impl EncoderService {
     pub fn _process_text(
         &self,
         text: &Vec<String>,
-    ) -> Result<Vec<Vec<f32>>, Box<dyn std::error::Error + Send + Sync>> {
+    ) -> Result<Vec<f32>, Box<dyn std::error::Error + Send + Sync>> {
         let preprocessed = self.tokenizer.encode_batch(text.clone(), true)?;
-
-        let image_batch_size = 10;
-        let num_channels = 3;
-        let height = 224;
-        let width = 224;
-
-        let shape = IxDyn(&[image_batch_size, num_channels, height, width]);
-        let pixel_values = ArrayD::<f32>::zeros(shape);
-        let pixel_values = CowArray::from(pixel_values);
 
         let input_ids_vector: Vec<i64> = preprocessed
             .iter()
@@ -100,26 +87,26 @@ impl EncoderService {
         let session = &self.encoder;
         let outputs = session.run(vec![
             Value::from_array(session.allocator(), &input_ids_vector)?,
-            Value::from_array(session.allocator(), &pixel_values)?,
             Value::from_array(session.allocator(), &attention_mask_vector)?,
         ])?;
 
-        let output_text_embed_index = 2;
+        let output_text_embed_index = 0;
         let binding = outputs[output_text_embed_index].try_extract()?;
         let embeddings = binding.view();
 
         let seq_len = embeddings
             .shape()
-            .get(1)
+            .first()
             .ok_or("cannot find seq_len with index 1 in text embeddings")?;
 
-        Ok(embeddings
+        let embeddings = embeddings
             .iter()
             .copied()
             .chunks(*seq_len)
             .into_iter()
-            .map(|b| b.collect())
-            .collect())
+            .flat_map(|b| b)
+            .collect();
+        Ok(embeddings)
     }
 
     pub fn _process_image(
