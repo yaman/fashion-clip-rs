@@ -98,7 +98,7 @@ RUN set -eux; \
 
 RUN rustup component add rustfmt rust-src rust-analysis clippy
 
-RUN cargo install cargo-watch cargo-edit evcxr_jupyter evcxr evcxr_repl 
+RUN cargo install cargo-watch cargo-edit evcxr_jupyter evcxr evcxr_repl just
 
 RUN evcxr_jupyter --install
 

@@ -1,3 +1,6 @@
 /target
 fashion-clip-onnx
 Cargo.lock
+.autometrics
+/**onnx
+models

@@ -64,21 +64,23 @@ impl EncoderService {
         &self,
         text: &Vec<String>,
     ) -> Result<Vec<f32>, Box<dyn std::error::Error + Send + Sync>> {
-        let preprocessed = self.tokenizer.encode_batch(text.clone(), true)?;
+        let preprocessed = self.tokenizer.encode(text.clone(), true)?;
 
         let input_ids_vector: Vec<i64> = preprocessed
+            .get_ids()
             .iter()
-            .map(|i| i.get_ids().iter().map(|b| *b as i64).collect())
-            .concat();
+            .map(|b| *b as i64)
+            .collect::<Vec<i64>>();
 
         let ids_shape = (text.len(), input_ids_vector.len() / text.len());
         let input_ids_vector =
             CowArray::from(Array2::from_shape_vec(ids_shape, input_ids_vector)?).into_dyn();
 
         let attention_mask_vector: Vec<i64> = preprocessed
+            .get_attention_mask()
             .iter()
-            .map(|i| i.get_attention_mask().iter().map(|b| *b as i64).collect())
-            .concat();
+            .map(|b| *b as i64)
+            .collect::<Vec<i64>>();
 
         let mask_shape = (text.len(), attention_mask_vector.len() / text.len());
         let attention_mask_vector =
@@ -93,18 +95,20 @@ impl EncoderService {
         let output_text_embed_index = 0;
         let binding = outputs[output_text_embed_index].try_extract()?;
         let embeddings = binding.view();
+        // println!("embeddings {:?}", embeddings.);
 
         let seq_len = embeddings
             .shape()
             .first()
-            .ok_or("cannot find seq_len with index 1 in text embeddings")?;
+            .ok_or("cannot find seq_len with index 0 in text embeddings")?;
 
-        let embeddings = embeddings
+
+        let embeddings: Vec<f32> = embeddings
             .iter()
             .copied()
             .chunks(*seq_len)
             .into_iter()
-            .flat_map(|b| b)
+            .flatten()
             .collect();
         Ok(embeddings)
     }

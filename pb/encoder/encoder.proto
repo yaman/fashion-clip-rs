@@ -17,9 +17,5 @@ message EncodeImageRequest {
 }
 
 message EncoderResponse {
-  repeated Embedding embedding = 3;
-}
-
-message Embedding {
-  repeated float point = 4;
+  repeated float embedding = 3;
 }
