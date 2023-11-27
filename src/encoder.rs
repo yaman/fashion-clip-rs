@@ -32,7 +32,7 @@ impl EncoderService {
         environment: &Arc<Environment>,
         args: Args,
     ) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
-        let model_path = "combined_model.onnx";
+        let model_path = "models/text/model.onnx";
         let tokenizer_path = "sentence-transformers/clip-ViT-B-32-multilingual-v1";
 
         let mut tokenizer = Tokenizer::from_pretrained(tokenizer_path, None)?;

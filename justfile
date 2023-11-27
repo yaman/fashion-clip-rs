@@ -7,7 +7,7 @@ build-docker:
     docker build -t {{DOCKER_IMAGE}} .
 
 run:
-    cargo run --release
+    ORT_DYLIB_PATH=./target/release/libonnxruntime.so cargo run --release
 
 run-docker:
     docker run -p 8888:8888 {{DOCKER_IMAGE}}
