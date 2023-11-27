@@ -4,4 +4,6 @@ Cargo.lock
 .autometrics
 /**onnx
 models
-/**pycache**
+__pycache__/
+*.py[cod]
+*$py.class
