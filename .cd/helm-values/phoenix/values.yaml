@@ -85,3 +85,13 @@ resources:
 #   enabled: true
 
 secrets: []
+
+volumes:
+  - name: models
+    nfs:
+      server: 10.200.50.2
+      path: ecom_fileshare/nfs/personalization/models
+
+volumeMounts:
+  - mountPath: /models
+    name: models

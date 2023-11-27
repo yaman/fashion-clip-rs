@@ -63,6 +63,13 @@ install-models:
   stage: build
   tags:
     - "personalization-runner"
+  before_script:
+    - apt-get -y update
+    - apt-get install nfs-common -y
+    - mkdir personalization-nfs
+    - echo '10.200.50.2:/ecom_fileshare/nfs/personalization $CI_PROJECT_DIR/personalization-nfs nfs nconnect=7,defaults,_netdev,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport 0 0' >> /etc/fstab
+    - mount -a
+    - test -d $CI_PROJECT_DIR/personalization-nfs/models || mkdir -p $CI_PROJECT_DIR/personalization-nfs/models
   script:
     - python -m pip install --upgrade-strategy eager optimum[onnxruntime]
     - curl -sSL https://install.python-poetry.org | POETRY_HOME=/etc/poetry python3 -
@@ -70,6 +77,8 @@ install-models:
     - poetry install
     - poetry run convert_text_model
     - poetry run convert_image_model
+    - rm -rf $CI_PROJECT_DIR/personalization-nfs/models/*
+    - cp -r $CI_PROJECT_DIR/models/* $CI_PROJECT_DIR/personalization-nfs/models/
   rules:
     - if: '$CI_PIPELINE_SOURCE == "trigger"'
       when: never
