@@ -95,7 +95,6 @@ impl EncoderService {
         let output_text_embed_index = 0;
         let binding = outputs[output_text_embed_index].try_extract()?;
         let embeddings = binding.view();
-        // println!("embeddings {:?}", embeddings.);
 
         let seq_len = embeddings
             .shape()

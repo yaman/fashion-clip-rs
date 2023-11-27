@@ -93,3 +93,19 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Author
 
 This project was created by [Yaman](https://github.com/yaman).
+
+
+
+ -[✓] ONNX model output names match reference model (text_embeds, logits_per_image, logits_per_text, image_embeds)
+        - Validating ONNX Model output "logits_per_image":
+                -[✓] (2, 2) matches (2, 2)
+                -[✓] all values close (atol: 1e-05)
+        - Validating ONNX Model output "logits_per_text":
+                -[✓] (2, 2) matches (2, 2)
+                -[✓] all values close (atol: 1e-05)
+        - Validating ONNX Model output "text_embeds":
+                -[✓] (2, 512) matches (2, 512)
+                -[✓] all values close (atol: 1e-05)
+        - Validating ONNX Model output "image_embeds":
+                -[✓] (2, 512) matches (2, 512)
+                -[✓] all values close (atol: 1e-05)

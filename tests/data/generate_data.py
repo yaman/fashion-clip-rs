@@ -1,5 +1,6 @@
 from sentence_transformers import SentenceTransformer
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer,CLIPProcessor, CLIPModel
+from PIL import Image
 import json
 
 def generate_text():
@@ -19,4 +20,15 @@ def generate_text():
         json.dump(output_list, f)
 
 def generate_image():
-    model = 
+    model = CLIPModel.from_pretrained("patrickjohncyh/fashion-clip")
+    processor = CLIPProcessor.from_pretrained("patrickjohncyh/fashion-clip")
+
+    image = Image.open("tests/data/test_image.jpg")
+
+    inputs = processor(text=["a photo of a red shoe", "a photo of a black shoe"],images=image, return_tensors="pt", padding=True)
+
+    outputs = model(**inputs)
+    embeddings = outputs.image_embeds  # this is the image-text similarity score
+    print(embeddings.shape)
+    with open('tests/data/image_embeddings.json', 'w') as f:
+        json.dump(embeddings.tolist()[0], f)
