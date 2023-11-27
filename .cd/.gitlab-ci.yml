@@ -95,6 +95,9 @@ unit-test:
   image: rust:latest
   stage: test
   script:
+    - apt update && apt install protobuf-compiler -y
+    - export ORT_DYLIB_PATH="./target/release/libonnxruntime.so"
+    - ./target/embed-rs &
     - cargo test
   allow_failure: true
 
@@ -177,7 +180,7 @@ deploy-embed:phoenix:
       ARTIFACT_REPOSITORY: https://${CI_USERNAME}:${CI_PUSH_TOKEN}@gitlab.com/modanisatech/sherlock/personalization/deployment-artifacts.git
   script:
     - cd ${HOME} && git clone $ARTIFACT_REPOSITORY
-    - kubectl apply -n embed -f ./deployment-artifacts/embed/phoenix/
+    - kubectl apply -n embed-rs -f ./deployment-artifacts/embed-rs/phoenix/
   needs:
     - deploy-apps:phoenix
 
@@ -217,9 +220,13 @@ prepare-artifacts:phoenix:
 
 cargo-performance:
   stage: performance
-  image: registry.gitlab.com/modanisatech/docker-images/python-rust:latest
+  image: obvionaoe/ghz:latest
+  before_script:
+    - git clone https://github.com/bojand/ghz.git
+    - cd ghz
+    - make build
   script:
-    - cargo run --release -- --host https://personalization-embed-phoenix.modanisa.net/ --report-file=report.html --no-reset-metrics -s 600s -t 10m --running-metrics 10
+    - /go/bin/ghz --insecure --enable-compression --proto ./pb/encoder/encoder.proto --call encoder.Encoder.EncodeText -d '{"texts":"{randomString 16 }"}' -c 10 -z 1h --load-schedule=step --load-start=50 --load-end=300 --load-step=10 --load-step-duration=10s personalization-embed-rs-phoenix.modanisa.net
   artifacts:
     when: always
     paths:
