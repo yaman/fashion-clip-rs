@@ -1,0 +1,102 @@
+replicaCount: 1
+
+namespace:
+  create: true
+
+image:
+  repository: registry.gitlab.com/modanisatech/sherlock/personalizaiton/embed-rs
+  pullPolicy: IfNotPresent
+  tag: ""
+
+imagePullSecrets:
+  - name: regcred
+
+nameOverride: "embed-rs"
+fullnameOverride: "embed-rs"
+
+ports:
+  - name: grpc
+    protocol: TCP
+    containerPort: 50052
+    servicePort: 50052
+
+# serviceMonitoring:
+#   enabled: true
+#   port: "http"
+
+ingress:
+  enabled: true
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: personalization-embed-rs.modanisa.com
+  hosts:
+    - host: personalization-embed-rs.modanisa.com
+      servicePort: 50052
+      paths:
+        - /
+
+istio:
+  enabled: false
+
+autoscaling:
+  enabled: false
+  minReplicas: 6
+  maxReplicas: 50
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 70
+
+livenessProbe:
+  httpGet:
+    path: "/health"
+    port: http
+  initialDelaySeconds: 1
+  periodSeconds: 1
+  timeoutSeconds: 1
+  failureThreshold: 100
+  successThreshold: 1
+
+
+readinessProbe:
+  httpGet:
+    path: "/health"
+    port: http
+  initialDelaySeconds: 1
+  periodSeconds: 1
+  timeoutSeconds: 1
+  failureThreshold: 100
+  successThreshold: 1
+
+resources:
+  # limits:
+  #   memory: 256Mi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+# volumes:
+#   - name: prod-config
+#     secret:
+#       secretName: prod-config-secret
+
+# volumeMounts:
+#   - mountPath: /app/.config
+#     name: prod-config
+# sealedSecret:
+#   enabled: true
+
+nodeSelector:
+  node_pool: "default"
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 80
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - embed-rs
+          topologyKey: kubernetes.io/hostname
+
+secrets: []
