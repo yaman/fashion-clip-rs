@@ -89,8 +89,8 @@ secrets: []
 volumes:
   - name: models
     nfs:
-      server: 10.200.50.2
-      path: ecom_fileshare/nfs/personalization/models
+      server: nfs-server.nfs.svc.cluster.local
+      path: /exports/embed-rs/models
 
 volumeMounts:
   - mountPath: /models

@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: install-models-to-fileshare
+spec:
+  template:
+    spec:
+      containers:
+      - name: install-models
+        image: python:3.11
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          git clone https://${CI_USERNAME}:${CI_PUSH_TOKEN}@gitlab.com/modanisatech/sherlock/personalization/embed-rs.git
+          cd embed-rs
+          python -m pip install --upgrade-strategy eager optimum[onnxruntime]
+          curl -sSL https://install.python-poetry.org | POETRY_HOME=/etc/poetry python3 -
+          export PATH="/etc/poetry/bin:$PATH"
+          poetry install
+          poetry run convert_text_model
+          poetry run convert_image_model
+          test -d /fileshare/embed-rs || mkdir -p /fileshare/embed-rs
+          test -d /fileshare/embed-rs/models || mkdir -p /fileshare/embed-rs/models
+          cp -rf models/* /fileshare/embed-rs/models/
+        volumeMounts:
+        - mountPath: /fileshare
+          name: models
+      restartPolicy: Never
+      volumes:
+      - name: models
+        nfs:
+          server: ${NFS_SERVER}
+          path: ${NFS_PATH}
+  backoffLimit: 4

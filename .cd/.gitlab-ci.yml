@@ -32,11 +32,12 @@ variables:
   APP_NAME: ${CI_PROJECT_NAME}
   NAMESPACE: ${CI_PROJECT_NAME}
   HELM_RELEASE_NAME: ${CI_PROJECT_NAME}
+  K8S_SERVICEACCOUNT: ${K8S_SERVICEACCOUNT_UTILITY}
     
 .gke-login:
   before_script:
     - export USE_GKE_GCLOUD_AUTH_PLUGIN=True
-    - echo ${K8S_SERVICEACCOUNT_UTILITY} | base64 -d > /tmp/gcloud-service-key.json
+    - echo ${K8S_SERVICEACCOUNT} | base64 -d > /tmp/gcloud-service-key.json
     - gcloud auth activate-service-account --key-file /tmp/gcloud-service-key.json
     - gcloud container clusters get-credentials $GKE_CLUSTER_NAME --region $GCLOUD_CLUSTER_REGION --project $GCLOUD_PROJECT_NAME
 
@@ -59,17 +60,10 @@ cargo-install:
     paths:
       - $CI_PROJECT_DIR/target
 
-install-models:
+.install-models:
   stage: build
   tags:
     - "personalization-runner"
-  before_script:
-    - apt-get -y update
-    - apt-get install nfs-common -y
-    - mkdir -p /tmp/personalization-nfs
-    - echo '10.200.50.2:/ecom_fileshare/nfs/personalization /tmp/personalization-nfs nfs nconnect=7,defaults,_netdev,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport 0 0' >> /etc/fstab
-    - mount -a
-    - test -d /tmp/personalization-nfs/models || mkdir -p /tmp/personalization-nfs/models
   script:
     - python -m pip install --upgrade-strategy eager optimum[onnxruntime]
     - curl -sSL https://install.python-poetry.org | POETRY_HOME=/etc/poetry python3 -
@@ -77,8 +71,6 @@ install-models:
     - poetry install
     - poetry run convert_text_model
     - poetry run convert_image_model
-    - rm -rf /tmp/personalization-nfs/models/*
-    - cp -r $CI_PROJECT_DIR/models/* /tmp/personalization-nfs/models/
   rules:
     - if: '$CI_PIPELINE_SOURCE == "trigger"'
       when: never
@@ -88,6 +80,28 @@ install-models:
   artifacts:
     paths:
       - $CI_PROJECT_DIR/models
+
+upload-models:prod:
+  stage: prepare-artifacts-prod
+  image: python:3.11
+  variables:
+    GKE_CLUSTER_NAME: personalization-prod
+    NFS_PATH: /ecom_fileshare/nfs/personalization
+    NFS_SERVER: 10.200.50.2
+    K8S_SERVICEACCOUNT: ${K8S_SERVICEACCOUNT_PROD}
+  extends:
+    - .gke-login
+  script:
+    - envsubst < .cd/install-models.yaml > new-install-models.yaml
+    - kubectl apply -f new-install-models.yaml
+  tags:
+    - "personalization-runner"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "trigger"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - when: on_success
 
 package:
   stage: package
@@ -158,7 +172,6 @@ create-phoenix-cluster:
   extends:
     - .gke-login
   variables:
-    GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-service-key.json
     TERRAGRUNT_REPOSITORY: https://${CI_USERNAME}:${CI_PUSH_TOKEN}@gitlab.com/modanisatech/sherlock/personalization/terragrunt.git
   script:
     - cd ${HOME} && git clone $TERRAGRUNT_REPOSITORY && cd terragrunt/gcp/personalization/europe-west-1/phoenix/gke
@@ -172,10 +185,14 @@ deploy-apps:phoenix:
   variables:
       GKE_CLUSTER_NAME: personalization-phoenix
       GITOPS_REPOSITORY: https://${CI_USERNAME}:${CI_PUSH_TOKEN}@gitlab.com/modanisatech/sherlock/personalization/gitops.git
+      NFS_PATH: /exports
+      NFS_SERVER: nfs-server.nfs.svc.cluster.local
   script:
     - cd ${HOME} && git clone $GITOPS_REPOSITORY && cd gitops/phoenix
     - ./deploy.sh
     - echo "Infra apps deployed"
+    - envsubst < .cd/install-models.yaml > new-install-models.yaml
+    - kubectl apply -f new-install-models.yaml
   needs:
     - create-phoenix-cluster
 
@@ -191,6 +208,7 @@ deploy-embed:phoenix:
     - cd ${HOME} && git clone $ARTIFACT_REPOSITORY
     - kubectl apply -n embed-rs -f ./deployment-artifacts/embed-rs/phoenix/
   needs:
+    - prepare-artifacts:phoenix
     - deploy-apps:phoenix
 
 prepare-artifacts:phoenix:
