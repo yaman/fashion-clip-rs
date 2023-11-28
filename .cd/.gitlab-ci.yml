@@ -94,10 +94,6 @@ upload-models:
   script:
     - kubectl apply -f .cd/install-models.yaml
     - kubectl wait --for=condition=complete --timeout=6000s job/install-models-to-fileshare
-  dependencies:
-    - install-models
-  needs:
-    - install-models
 
 package:
   stage: package
