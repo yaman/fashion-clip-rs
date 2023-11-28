@@ -93,7 +93,7 @@ upload-models:
     GCLOUD_PROJECT_NAME: mdns-personalization-prod
     K8S_SERVICEACCOUNT: ${K8S_SERVICEACCOUNT_PROD}
   script:
-    - kubectl apply -f .cd/install-models.yaml
+    - kubectl apply -f $CI_PROJECT_DIR/.cd/install-models.yaml -n default
     - kubectl wait --for=condition=complete --timeout=6000s job/install-models-to-fileshare
 
 package:
