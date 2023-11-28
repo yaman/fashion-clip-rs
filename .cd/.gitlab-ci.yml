@@ -82,6 +82,7 @@ install-models:
       - $CI_PROJECT_DIR/models
 
 upload-models:
+  image: registry.gitlab.com/modanisatech/docker-images/helm3-gcp-kubectl-terragrunt/master
   stage: build
   tags:
     - "personalization-runner"
