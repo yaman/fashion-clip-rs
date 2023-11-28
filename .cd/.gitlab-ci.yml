@@ -32,7 +32,7 @@ variables:
   APP_NAME: ${CI_PROJECT_NAME}
   NAMESPACE: ${CI_PROJECT_NAME}
   HELM_RELEASE_NAME: ${CI_PROJECT_NAME}
-  K8S_SERVICEACCOUNT: K8S_SERVICEACCOUNT_UTILITY
+  K8S_SERVICEACCOUNT: ${K8S_SERVICEACCOUNT_UTILITY}
     
 .gke-login:
   before_script:
@@ -90,7 +90,7 @@ upload-models:
   variables:
     GKE_CLUSTER_NAME: personalization-prod
     GCLOUD_PROJECT_NAME: mdns-personalization-prod
-    K8S_SERVICEACCOUNT: K8S_SERVICEACCOUNT_PROD
+    K8S_SERVICEACCOUNT: ${K8S_SERVICEACCOUNT_PROD}
   script:
     - kubectl apply -f .cd/install-models.yaml
     - kubectl wait --for=condition=complete --timeout=6000s job/install-models-to-fileshare
@@ -161,7 +161,7 @@ deploy-apps:phoenix:
   variables:
       GKE_CLUSTER_NAME: personalization-phoenix
       GCLOUD_PROJECT_NAME: mdns-personalization-prod
-      K8S_SERVICEACCOUNT: K8S_SERVICEACCOUNT_PROD
+      K8S_SERVICEACCOUNT: ${K8S_SERVICEACCOUNT_PROD}
       GITOPS_REPOSITORY: https://${CI_USERNAME}:${CI_PUSH_TOKEN}@gitlab.com/modanisatech/sherlock/personalization/gitops.git
   script:
     - cd ${HOME} && git clone $GITOPS_REPOSITORY && cd gitops/phoenix
@@ -178,7 +178,7 @@ deploy-embed:phoenix:
   variables:
       GKE_CLUSTER_NAME: personalization-phoenix
       GCLOUD_PROJECT_NAME: mdns-personalization-prod
-      K8S_SERVICEACCOUNT: K8S_SERVICEACCOUNT_PROD
+      K8S_SERVICEACCOUNT: ${K8S_SERVICEACCOUNT_PROD}
       ARTIFACT_REPOSITORY: https://${CI_USERNAME}:${CI_PUSH_TOKEN}@gitlab.com/modanisatech/sherlock/personalization/deployment-artifacts.git
   script:
     - cd ${HOME} && git clone $ARTIFACT_REPOSITORY
