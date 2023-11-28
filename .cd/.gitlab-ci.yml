@@ -32,12 +32,11 @@ variables:
   APP_NAME: ${CI_PROJECT_NAME}
   NAMESPACE: ${CI_PROJECT_NAME}
   HELM_RELEASE_NAME: ${CI_PROJECT_NAME}
-  K8S_SERVICEACCOUNT: ${K8S_SERVICEACCOUNT_UTILITY}
     
 .gke-login:
   before_script:
     - export USE_GKE_GCLOUD_AUTH_PLUGIN=True
-    - echo ${K8S_SERVICEACCOUNT} | base64 -d > /tmp/gcloud-service-key.json
+    - echo ${K8S_SERVICEACCOUNT_UTILITY} | base64 -d > /tmp/gcloud-service-key.json
     - gcloud auth activate-service-account --key-file /tmp/gcloud-service-key.json
     - gcloud container clusters get-credentials $GKE_CLUSTER_NAME --region $GCLOUD_CLUSTER_REGION --project $GCLOUD_PROJECT_NAME
 
@@ -71,6 +70,7 @@ install-models:
     - poetry install
     - poetry run convert_text_model
     - poetry run convert_image_model
+    - echo $CI_JOB_ID > $CI_PROJECT_DIR/models/models_artifact_id
   rules:
     - if: '$CI_PIPELINE_SOURCE == "trigger"'
       when: never
@@ -80,21 +80,6 @@ install-models:
   artifacts:
     paths:
       - $CI_PROJECT_DIR/models
-
-upload-models:
-  image: registry.gitlab.com/modanisatech/docker-images/helm3-gcp-kubectl-terragrunt/master
-  stage: build
-  tags:
-    - "personalization-runner"
-  extends:
-    - .gke-login
-  variables:
-    GKE_CLUSTER_NAME: personalization-prod
-    GCLOUD_PROJECT_NAME: mdns-personalization-prod
-    K8S_SERVICEACCOUNT: ${K8S_SERVICEACCOUNT_PROD}
-  script:
-    - kubectl apply -f $CI_PROJECT_DIR/.cd/install-models.yaml -n default
-    - kubectl wait --for=condition=complete --timeout=6000s job/install-models-to-fileshare
 
 package:
   stage: package
@@ -116,8 +101,6 @@ unit-test:
     - ./target/embed-rs &
     - cargo test
   allow_failure: true
-  needs:
-    - install-models
 
 base-container-security:
   stage: security
@@ -149,10 +132,12 @@ create-phoenix-cluster:
   extends:
     - .gke-login
   variables:
+    GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-service-key.json
     TERRAGRUNT_REPOSITORY: https://${CI_USERNAME}:${CI_PUSH_TOKEN}@gitlab.com/modanisatech/sherlock/personalization/terragrunt.git
   script:
     - cd ${HOME} && git clone $TERRAGRUNT_REPOSITORY && cd terragrunt/gcp/personalization/europe-west-1/phoenix/gke
     - terragrunt apply -auto-approve --terragrunt-non-interactive
+  dependencies: []
 
 deploy-apps:phoenix:
   stage: deploy-phoenix
@@ -161,8 +146,6 @@ deploy-apps:phoenix:
     - .gke-login
   variables:
       GKE_CLUSTER_NAME: personalization-phoenix
-      GCLOUD_PROJECT_NAME: mdns-personalization-prod
-      K8S_SERVICEACCOUNT: ${K8S_SERVICEACCOUNT_PROD}
       GITOPS_REPOSITORY: https://${CI_USERNAME}:${CI_PUSH_TOKEN}@gitlab.com/modanisatech/sherlock/personalization/gitops.git
   script:
     - cd ${HOME} && git clone $GITOPS_REPOSITORY && cd gitops/phoenix
@@ -178,16 +161,14 @@ deploy-embed:phoenix:
     - .gke-login
   variables:
       GKE_CLUSTER_NAME: personalization-phoenix
-      GCLOUD_PROJECT_NAME: mdns-personalization-prod
-      K8S_SERVICEACCOUNT: ${K8S_SERVICEACCOUNT_PROD}
       ARTIFACT_REPOSITORY: https://${CI_USERNAME}:${CI_PUSH_TOKEN}@gitlab.com/modanisatech/sherlock/personalization/deployment-artifacts.git
   script:
     - cd ${HOME} && git clone $ARTIFACT_REPOSITORY
+    - kubectl apply -n embed-rs -f ./deployment-artifacts/embed-rs/phoenix/namespace.yaml
     - kubectl apply -n embed-rs -f ./deployment-artifacts/embed-rs/phoenix/
   needs:
     - prepare-artifacts:phoenix
     - deploy-apps:phoenix
-    - upload-models
 
 prepare-artifacts:phoenix:
   stage: deploy-phoenix
@@ -205,6 +186,7 @@ prepare-artifacts:phoenix:
     - export LB_ENDPOINT=${LB_ENDPOINT_PHOENIX}
     - export LB_INTERNAL_ENDPOINT=${LB_INTERNAL_ENDPOINT_PHOENIX}
   script:
+    - export MODELS_ARTIFACT_ID=$(cat $CI_PROJECT_DIR/models/models_artifact_id)
     - mkdir -p /tmp/manifests
     - git clone -b $CHART_VERSION $HELM_TEMPLATE_REPOSITORY /tmp/helm-charts
     - envsubst < $HELM_PATH/helm-values/$DEPLOY_ENV/values.yaml > new-values.yaml
@@ -226,10 +208,6 @@ prepare-artifacts:phoenix:
 cargo-performance:
   stage: performance
   image: obvionaoe/ghz:latest
-  before_script:
-    - git clone https://github.com/bojand/ghz.git
-    - cd ghz
-    - make build
   script:
     - /go/bin/ghz --insecure --enable-compression --proto ./pb/encoder/encoder.proto --call encoder.Encoder.EncodeText -d '{"texts":"{randomString 16 }"}' -c 10 -z 1h --load-schedule=step --load-start=50 --load-end=300 --load-step=10 --load-step-duration=10s personalization-embed-rs-phoenix.modanisa.net
   artifacts:
@@ -251,6 +229,7 @@ destroy-phoenix:
     - cd ${HOME} && git clone $TERRAGRUNT_REPOSITORY && cd terragrunt/gcp/personalization/europe-west-1/phoenix/gke
     - terragrunt destroy -auto-approve --terragrunt-non-interactive
   when: always
+  dependencies: []
 
 prepare-artifacts:prod:
   stage: prepare-artifacts-prod
@@ -268,6 +247,7 @@ prepare-artifacts:prod:
     - export LB_ENDPOINT=${LB_ENDPOINT_PROD}
     - export LB_INTERNAL_ENDPOINT=${LB_INTERNAL_ENDPOINT_PROD}
   script:
+    - export MODELS_ARTIFACT_ID=$(cat $CI_PROJECT_DIR/models/models_artifact_id)
     - mkdir -p /tmp/manifests
     - git clone -b $CHART_VERSION $HELM_TEMPLATE_REPOSITORY /tmp/helm-charts
     - envsubst < $HELM_PATH/helm-values/$DEPLOY_ENV/values.yaml > new-values.yaml

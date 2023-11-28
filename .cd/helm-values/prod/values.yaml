@@ -45,26 +45,10 @@ autoscaling:
   targetCPUUtilizationPercentage: 70
   targetMemoryUtilizationPercentage: 70
 
-livenessProbe:
-  httpGet:
-    path: "/health"
-    port: http
-  initialDelaySeconds: 1
-  periodSeconds: 1
-  timeoutSeconds: 1
-  failureThreshold: 100
-  successThreshold: 1
+livenessProbe: {}
 
 
-readinessProbe:
-  httpGet:
-    path: "/health"
-    port: http
-  initialDelaySeconds: 1
-  periodSeconds: 1
-  timeoutSeconds: 1
-  failureThreshold: 100
-  successThreshold: 1
+readinessProbe: {}
 
 resources:
   # limits:
@@ -102,12 +86,7 @@ affinity:
 
 secrets: []
 
-volumes:
-  - name: models
-    nfs:
-      server: 10.200.50.2
-      path: ecom_fileshare/nfs/personalization/embed-rs/models
-
-volumeMounts:
-  - mountPath: /models
-    name: models
+configMap:
+  MODELS_ARTIFACT_ID: "${MODELS_ARTIFACT_ID}"
+  PROJECT_ID: "52548016"
+  GITLAB_ACCESS_TOKEN: "${GITLAB_TOKEN}"
