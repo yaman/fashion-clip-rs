@@ -7,61 +7,111 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'embedding_rust_ort'",
+            "name": "Debug unit tests in library 'embed-rs'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=embed-rs"
+                ],
+                "filter": {
+                    "name": "embed-rs",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "ORT_DYLIB_PATH": "${workspaceFolder}/target/release/libonnxruntime.so"
+            }
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'embed-rs'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=embedding_rust_ort",
-                    "--package=embedding_rust_ort"
+                    "--bin=embed-rs",
+                    "--package=embed-rs"
                 ],
                 "filter": {
-                    "name": "embedding_rust_ort",
+                    "name": "embed-rs",
                     "kind": "bin"
                 }
             },
             "args": [],
             "cwd": "${workspaceFolder}",
             "env": {
-                "LD_LIBRARY_PATH": "${workspaceFolder}/target/debug"
+                "ORT_DYLIB_PATH": "${workspaceFolder}/target/release/libonnxruntime.so"
             }
         },
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'embedding_rust_ort'",
+            "name": "Debug unit tests in executable 'embed-rs'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=embedding_rust_ort",
-                    "--package=embedding_rust_ort"
+                    "--bin=embed-rs",
+                    "--package=embed-rs"
                 ],
                 "filter": {
-                    "name": "embedding_rust_ort",
+                    "name": "embed-rs",
                     "kind": "bin"
                 }
             },
             "args": [],
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "ORT_DYLIB_PATH": "${workspaceFolder}/target/release/libonnxruntime.so"
+            }
         },
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug integration test 'encoder_service_test'",
+            "name": "Debug integration test 'embed_test'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--test=encoder_service_test",
-                    "--package=embedding_rust_ort"
+                    "--test=embed_test",
+                    "--package=embed-rs"
                 ],
                 "filter": {
-                    "name": "encoder_service_test",
+                    "name": "embed_test",
                     "kind": "test"
                 }
             },
             "args": [],
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "ORT_DYLIB_PATH": "${workspaceFolder}/target/release/libonnxruntime.so"
+            }
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'encoder_service_integration_test'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=encoder_service_integration_test",
+                    "--package=embed-rs"
+                ],
+                "filter": {
+                    "name": "encoder_service_integration_test",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "ORT_DYLIB_PATH": "${workspaceFolder}/target/release/libonnxruntime.so"
+            }
         }
     ]
 }

@@ -4,7 +4,7 @@ port=50052
 
 [model.text]
 name = "sentence-transformers/clip-ViT-B-32-multilingual-v1"
-cache_folder = "models"
+cache_folder = "models/text"
 
 [model.image]
 name = "patrickjohncyh/fashion-clip"

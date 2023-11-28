@@ -1,11 +1,10 @@
 use autometrics::autometrics;
+use embed_rs::embed::EmbedText;
 use tonic::{Request, Response, Status};
 
 pub mod encoder {
     tonic::include_proto!("encoder");
 }
-
-use crate::EncoderService;
 
 use self::encoder::{
     encoder_server::Encoder, EncodeImageRequest, EncodeTextRequest, EncoderResponse,
@@ -16,6 +15,10 @@ const API_SLO: Objective = Objective::new("embed-rs")
     .success_rate(ObjectivePercentile::P99_9)
     .latency(ObjectiveLatency::Ms10, ObjectivePercentile::P99);
 
+pub struct EncoderService {
+    pub embed_text: EmbedText,
+}
+
 #[tonic::async_trait]
 impl Encoder for EncoderService {
     #[autometrics(objective = API_SLO)]
@@ -24,10 +27,11 @@ impl Encoder for EncoderService {
         request: Request<EncodeTextRequest>,
     ) -> Result<Response<EncoderResponse>, Status> {
         let texts = &request.get_ref().texts;
-        return match self._process_text(texts) {
+        return match self.embed_text.encode(texts) {
             Ok(d) => {
                 let embedding = d.into_iter().flat_map(|i| vec![i]).collect();
                 Ok(Response::new(EncoderResponse { embedding }))
+                
             }
             Err(e) => Err(Status::internal(format!("{:?}", e))),
         };
@@ -38,7 +42,8 @@ impl Encoder for EncoderService {
         &self,
         request: Request<EncodeImageRequest>,
     ) -> Result<Response<EncoderResponse>, Status> {
-        // return dummy response without image or anythin
         Ok(Response::new(EncoderResponse { embedding: vec![] }))
     }
 }
+
+

@@ -14,4 +14,5 @@ pub struct Args {
     /// Whether to pad and truncate the input text token sequence to 77
     #[arg(short, long, default_value_t = true)]
     pub pad_token_sequence: bool,
+    
 }
