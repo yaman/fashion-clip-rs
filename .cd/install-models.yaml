@@ -19,9 +19,8 @@ spec:
           poetry install
           poetry run convert_text_model
           poetry run convert_image_model
-          test -d /fileshare/embed-rs || mkdir -p /fileshare/embed-rs
-          test -d /fileshare/embed-rs/models || mkdir -p /fileshare/embed-rs/models
-          cp -rf models/* /fileshare/embed-rs/models/
+          test -d /fileshare/models || mkdir -p /fileshare/models
+          cp -rf models/* /fileshare/models/
         volumeMounts:
         - mountPath: /fileshare
           name: models
@@ -29,6 +28,6 @@ spec:
       volumes:
       - name: models
         nfs:
-          server: ${NFS_SERVER}
-          path: ${NFS_PATH}
+          server: 10.200.50.2
+          path: ecom_fileshare/nfs/personalization/embed-rs
   backoffLimit: 4

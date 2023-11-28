@@ -32,7 +32,7 @@ variables:
   APP_NAME: ${CI_PROJECT_NAME}
   NAMESPACE: ${CI_PROJECT_NAME}
   HELM_RELEASE_NAME: ${CI_PROJECT_NAME}
-  K8S_SERVICEACCOUNT: ${K8S_SERVICEACCOUNT_UTILITY}
+  K8S_SERVICEACCOUNT: K8S_SERVICEACCOUNT_UTILITY
     
 .gke-login:
   before_script:
@@ -60,7 +60,7 @@ cargo-install:
     paths:
       - $CI_PROJECT_DIR/target
 
-.install-models:
+install-models:
   stage: build
   tags:
     - "personalization-runner"
@@ -81,27 +81,23 @@ cargo-install:
     paths:
       - $CI_PROJECT_DIR/models
 
-upload-models:prod:
-  stage: prepare-artifacts-prod
-  image: python:3.11
-  variables:
-    GKE_CLUSTER_NAME: personalization-prod
-    NFS_PATH: /ecom_fileshare/nfs/personalization
-    NFS_SERVER: 10.200.50.2
-    K8S_SERVICEACCOUNT: ${K8S_SERVICEACCOUNT_PROD}
-  extends:
-    - .gke-login
-  script:
-    - envsubst < .cd/install-models.yaml > new-install-models.yaml
-    - kubectl apply -f new-install-models.yaml
+upload-models:
+  stage: build
   tags:
     - "personalization-runner"
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "trigger"'
-      when: never
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
-    - when: on_success
+  extends:
+    - .gke-login
+  variables:
+    GKE_CLUSTER_NAME: personalization-prod
+    GCLOUD_PROJECT_NAME: mdns-personalization-prod
+    K8S_SERVICEACCOUNT: K8S_SERVICEACCOUNT_PROD
+  script:
+    - kubectl apply -f .cd/install-models.yaml
+    - kubectl wait --for=condition=complete --timeout=6000s job/install-models-to-fileshare
+  dependencies:
+    - install-models
+  needs:
+    - install-models
 
 package:
   stage: package
@@ -123,24 +119,8 @@ unit-test:
     - ./target/embed-rs &
     - cargo test
   allow_failure: true
-
-.cdc-test:
-  image: registry.gitlab.com/modanisatech/docker-images/python-rust:latest
-  stage: test
-  before_script:
-    - poetry install
-  script:
-    - just cdc-test
-  allow_failure: true
-
-.pact-test:
-  image: registry.gitlab.com/modanisatech/docker-images/python-rust:latest
-  stage: test
-  before_script:
-    - poetry install
-  script:
-    - just build-pact
-  allow_failure: true
+  needs:
+    - install-models
 
 base-container-security:
   stage: security
@@ -184,15 +164,13 @@ deploy-apps:phoenix:
     - .gke-login
   variables:
       GKE_CLUSTER_NAME: personalization-phoenix
+      GCLOUD_PROJECT_NAME: mdns-personalization-prod
+      K8S_SERVICEACCOUNT: K8S_SERVICEACCOUNT_PROD
       GITOPS_REPOSITORY: https://${CI_USERNAME}:${CI_PUSH_TOKEN}@gitlab.com/modanisatech/sherlock/personalization/gitops.git
-      NFS_PATH: /exports
-      NFS_SERVER: nfs-server.nfs.svc.cluster.local
   script:
     - cd ${HOME} && git clone $GITOPS_REPOSITORY && cd gitops/phoenix
     - ./deploy.sh
     - echo "Infra apps deployed"
-    - envsubst < .cd/install-models.yaml > new-install-models.yaml
-    - kubectl apply -f new-install-models.yaml
   needs:
     - create-phoenix-cluster
 
@@ -203,6 +181,8 @@ deploy-embed:phoenix:
     - .gke-login
   variables:
       GKE_CLUSTER_NAME: personalization-phoenix
+      GCLOUD_PROJECT_NAME: mdns-personalization-prod
+      K8S_SERVICEACCOUNT: K8S_SERVICEACCOUNT_PROD
       ARTIFACT_REPOSITORY: https://${CI_USERNAME}:${CI_PUSH_TOKEN}@gitlab.com/modanisatech/sherlock/personalization/deployment-artifacts.git
   script:
     - cd ${HOME} && git clone $ARTIFACT_REPOSITORY
@@ -210,6 +190,7 @@ deploy-embed:phoenix:
   needs:
     - prepare-artifacts:phoenix
     - deploy-apps:phoenix
+    - upload-models
 
 prepare-artifacts:phoenix:
   stage: deploy-phoenix
