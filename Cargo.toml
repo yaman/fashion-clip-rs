@@ -22,14 +22,12 @@ autometrics = { version = "*", features = ["prometheus-exporter"] }
 axum = "0.7.1"
 ort = {version = "1.16.3", features = ["load-dynamic"]}
 serde = "1.0.193"
+toml = "0.8.8"
 
 
 [build-dependencies]
 tonic-build = "0.10.2"
 
 [dev-dependencies]
-pact_consumer = "1.0.5"
-pact_matching = "1.1.7"
 prost = "0.12.3"
-pretty_assertions = "1.4.0"
 approx = "0.5.1"

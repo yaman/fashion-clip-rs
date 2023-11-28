@@ -1,17 +1,20 @@
 [service]
 host="0.0.0.0"
 port=50052
+url="http://localhost:50052"
 
 [model.text]
 name = "sentence-transformers/clip-ViT-B-32-multilingual-v1"
 cache_folder = "models/text"
+onnx_folder = "models/text/model.onnx"
 
 [model.image]
 name = "patrickjohncyh/fashion-clip"
-cache_folder = "models"
+cache_folder = "models/image"
+onnx_folder = "models/image/model.onnx"
 pretrained_model_folder = "models--patrickjohncyh--fashion-clip"
 
-[test.data]
+[test]
 text_embeddings = "tests/data/text_embeddings.json"
 image_embeddings = "tests/data/image_embeddings.json"
 text_example = "This is an example sentence."

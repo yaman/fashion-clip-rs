@@ -11,9 +11,12 @@ pub struct EmbedText {
 }
 
 impl EmbedText {
-    pub fn new(text_model_path: &str) -> Result<Self, Box<dyn Error + Send + Sync>> {
+    pub fn new(
+        text_model_path: &str,
+        text_model_for_tokenizer: &str,
+    ) -> Result<Self, Box<dyn Error + Send + Sync>> {
         let session = Self::create_session(text_model_path)?;
-        let tokenizer = Self::create_tokenizer()?;
+        let tokenizer = Self::create_tokenizer(text_model_for_tokenizer)?;
         Ok(EmbedText { session, tokenizer })
     }
 
@@ -37,9 +40,10 @@ impl EmbedText {
         Ok(embeddings)
     }
 
-    fn create_tokenizer() -> Result<Tokenizer, Box<dyn Error + Send + Sync>> {
-        let tokenizer_path = "sentence-transformers/clip-ViT-B-32-multilingual-v1";
-        let mut tokenizer = Tokenizer::from_pretrained(tokenizer_path, None)?;
+    fn create_tokenizer(
+        text_model_for_tokenizer: &str,
+    ) -> Result<Tokenizer, Box<dyn Error + Send + Sync>> {
+        let mut tokenizer = Tokenizer::from_pretrained(text_model_for_tokenizer, None)?;
         tokenizer.with_padding(Some(tokenizers::PaddingParams {
             strategy: tokenizers::PaddingStrategy::BatchLongest,
             direction: tokenizers::PaddingDirection::Right,

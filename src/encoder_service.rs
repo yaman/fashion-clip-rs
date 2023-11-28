@@ -31,7 +31,6 @@ impl Encoder for EncoderService {
             Ok(d) => {
                 let embedding = d.into_iter().flat_map(|i| vec![i]).collect();
                 Ok(Response::new(EncoderResponse { embedding }))
-                
             }
             Err(e) => Err(Status::internal(format!("{:?}", e))),
         };
@@ -45,5 +44,3 @@ impl Encoder for EncoderService {
         Ok(Response::new(EncoderResponse { embedding: vec![] }))
     }
 }
-
-
