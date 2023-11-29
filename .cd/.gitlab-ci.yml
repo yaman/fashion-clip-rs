@@ -217,8 +217,9 @@ prepare-artifacts:phoenix:
 cargo-performance:
   stage: performance
   image: obvionaoe/ghz:latest
+  parallel: 10
   script:
-    - /go/bin/ghz --insecure --enable-compression --proto ./pb/encoder/encoder.proto --call encoder.Encoder.EncodeText -d '{"texts":"{randomString 16 }"}' -c 10 -z 1h --load-schedule=step --load-start=50 --load-end=300 --load-step=10 --load-step-duration=10s --connections=10 --lb-strategy "round_robin" 10.169.128.15:50052
+    - /go/bin/ghz --insecure --enable-compression --proto ./pb/encoder/encoder.proto --call encoder.Encoder.EncodeText -d '{"texts":"{randomString 16 }"}' -c 10 -z 10m --load-schedule=step --load-start=50 --load-end=300 --load-step=10 --load-step-duration=10s --connections=10 --lb-strategy "round_robin" 10.169.128.15:50052
   artifacts:
     when: always
     paths:
