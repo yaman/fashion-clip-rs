@@ -98,7 +98,9 @@ RUN set -eux; \
 
 RUN rustup component add rustfmt rust-src rust-analysis clippy
 
-RUN cargo install cargo-watch cargo-edit evcxr_jupyter evcxr evcxr_repl just
+RUN cargo install cargo-binstall
+
+RUN cargo binstall cargo-watch cargo-edit evcxr_jupyter evcxr evcxr_repl just cargo-tarpaulin -y
 
 RUN evcxr_jupyter --install
 
@@ -111,11 +113,15 @@ RUN chown -R 1000:1000 $RUSTUP_HOME $CARGO_HOME
 RUN groupadd -g 1000 canavar && \
     useradd -u 1000 -g canavar -s /bin/zsh -m canavar && \
     usermod -aG sudo canavar
-    
+
+RUN curl -L https://github.com/bojand/ghz/releases/download/v0.117.0/ghz-linux-x86_64.tar.gz -o /ghz.tar.gz \
+    && tar -xzvf /ghz.tar.gz -C /usr/local/bin \
+    && rm /ghz.tar.gz
+
 USER canavar
 
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
 ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/
 
-CMD ["/bin/zsh", "-c", "tmux"]
+CMD ["/bin/zsh"]

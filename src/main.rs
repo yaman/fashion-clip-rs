@@ -2,6 +2,8 @@ mod args;
 mod config;
 mod encoder_service;
 
+use std::time::Duration;
+
 use autometrics::prometheus_exporter;
 use embed_rs::embed::EmbedText;
 use tonic::{codec::CompressionEncoding, transport::Server};
@@ -44,8 +46,12 @@ pub async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>
         .await; // start grpc service
 
     Server::builder()
+        .http2_keepalive_interval(Some(Duration::from_secs(config.service.http2_keepalive_interval.into())))
+        .http2_keepalive_timeout(Some(Duration::from_secs(config.service.http2_keepalive_timeout.into())))
+        .tcp_keepalive(Some(Duration::from_secs(config.service.tcp_keepalive.into())))
         .add_service(health_service)
         .add_service(server)
+        
         .serve(grpc_addr)
         .await
         .expect("Failed to start gRPC(rustembed) server");

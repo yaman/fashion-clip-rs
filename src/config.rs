@@ -4,7 +4,10 @@ use serde::Deserialize;
 pub struct Service {
     pub host: String,
     pub port: u16,
-    pub url: String
+    pub url: String,
+    pub tcp_keepalive: u16,
+    pub http2_keepalive_interval: u16,
+    pub http2_keepalive_timeout: u16
 }
 
 #[derive(Debug, Deserialize)]

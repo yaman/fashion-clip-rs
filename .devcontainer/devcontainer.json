@@ -5,6 +5,7 @@
     "dockerFile": "./Dockerfile",
     "postCreateCommand": "chmod +x ./.devcontainer/setup.sh && sh ./.devcontainer/setup.sh",
     "runArgs": [
+        "--privileged",
         // if you have a GPU, you can use it inside the container
         "--gpus=all",
         // speeds up pytorch data loading
@@ -44,7 +45,8 @@
                 "vadimcn.vscode-lldb",
                 "serayuzgur.crates",
                 "github.heygithub",
-                "codeium.codeium"
+                "codeium.codeium",
+                "markis.code-coverage"
                 // "add.your.own.favorites",
             ]
         }
