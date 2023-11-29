@@ -31,7 +31,7 @@ istio:
   enabled: false
 
 autoscaling:
-  enabled: true
+  enabled: false
   minReplicas: 6
   maxReplicas: 50
   targetCPUUtilizationPercentage: 60
@@ -52,7 +52,7 @@ readinessProbe:
     command:
     - /bin/grpc_health_probe
     - -addr=:50052
-  initialDelaySeconds: 30
+  initialDelaySeconds: 40
   periodSeconds: 5
   failureThreshold: 50
 
