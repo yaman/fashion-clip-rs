@@ -23,6 +23,7 @@ axum = "0.7.1"
 ort = {version = "1.16.3", features = ["load-dynamic"]}
 serde = "1.0.193"
 toml = "0.8.8"
+tonic-health = "0.10.2"
 
 
 [build-dependencies]

@@ -2,11 +2,20 @@ mod args;
 mod config;
 mod encoder_service;
 
+use std::time::Duration;
+
 use autometrics::prometheus_exporter;
 use embed_rs::embed::EmbedText;
 use tonic::{codec::CompressionEncoding, transport::Server};
+use tonic_health::{
+    server::{HealthReporter, HealthService},
+    ServingStatus,
+};
 
-use crate::{config::Config, encoder_service::{EncoderService, encoder::encoder_server::EncoderServer}};
+use crate::{
+    config::Config,
+    encoder_service::{encoder::encoder_server::EncoderServer, EncoderService},
+};
 
 extern crate num_cpus;
 
@@ -35,9 +44,13 @@ pub async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>
         .unwrap();
 
     println!("Listening at {:?}", grpc_addr);
+    let (mut health_reporter, health_service) = tonic_health::server::health_reporter();
+    health_reporter
+        .set_serving::<EncoderServer<EncoderService>>()
+        .await; // start grpc service
 
-    // start grpc service
     Server::builder()
+        .add_service(health_service)
         .add_service(server)
         .serve(grpc_addr)
         .await
