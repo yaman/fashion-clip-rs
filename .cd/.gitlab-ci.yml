@@ -148,8 +148,9 @@ deploy-apps:phoenix:
       GKE_CLUSTER_NAME: personalization-phoenix
       GITOPS_REPOSITORY: https://${CI_USERNAME}:${CI_PUSH_TOKEN}@gitlab.com/modanisatech/sherlock/personalization/gitops.git
   script:
-    - cd ${HOME} && git clone $GITOPS_REPOSITORY && cd gitops/phoenix
-    - ./deploy.sh
+    #- cd ${HOME} && git clone $GITOPS_REPOSITORY && cd gitops/phoenix
+    #- ./deploy.sh
+    # Not necessary for now
     - echo "Infra apps deployed"
   needs:
     - create-phoenix-cluster
@@ -165,7 +166,15 @@ deploy-embed:phoenix:
   script:
     - cd ${HOME} && git clone $ARTIFACT_REPOSITORY
     - kubectl apply -n embed-rs -f ./deployment-artifacts/embed-rs/phoenix/namespace.yaml
+    - kubectl apply -n embed-rs -f $CI_PROJECT_DIR/.cd/helm-values/phoenix/service.yaml
     - kubectl apply -n embed-rs -f ./deployment-artifacts/embed-rs/phoenix/
+    - |
+      export SERVICE_NAME=embed-rs-external
+      while [[ -z $(kubectl get service $SERVICE_NAME -n embed-rs -o jsonpath='{.status.loadBalancer.ingress[0].ip}') ]]; do
+          echo "Waiting for external IP..."
+          sleep 5
+      done
+      echo "External IP obtained: $(kubectl get service $SERVICE_NAME -n embed-rs -o jsonpath='{.status.loadBalancer.ingress[0].ip}')"
   needs:
     - prepare-artifacts:phoenix
     - deploy-apps:phoenix
@@ -209,7 +218,7 @@ cargo-performance:
   stage: performance
   image: obvionaoe/ghz:latest
   script:
-    - /go/bin/ghz --insecure --enable-compression --proto ./pb/encoder/encoder.proto --call encoder.Encoder.EncodeText -d '{"texts":"{randomString 16 }"}' -c 10 -z 1h --load-schedule=step --load-start=50 --load-end=300 --load-step=10 --load-step-duration=10s personalization-embed-rs-phoenix.modanisa.net:80
+    - /go/bin/ghz --insecure --enable-compression --proto ./pb/encoder/encoder.proto --call encoder.Encoder.EncodeText -d '{"texts":"{randomString 16 }"}' -c 10 -z 1h --load-schedule=step --load-start=50 --load-end=300 --load-step=10 --load-step-duration=10s 10.169.128.15:50052
   artifacts:
     when: always
     paths:

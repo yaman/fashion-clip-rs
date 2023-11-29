@@ -18,22 +18,14 @@ ports:
   - name: grpc
     protocol: TCP
     containerPort: 50052
-    servicePort: 50052
+    servicePort: 80
 
 # serviceMonitoring:
 #   enabled: true
 #   port: "http"
 
 ingress:
-  enabled: true
-  annotations:
-    external-dns.alpha.kubernetes.io/hostname: personalization-embed-rs.modanisa.com
-    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
-  hosts:
-    - host: personalization-embed-rs.modanisa.com
-      servicePort: 50052
-      paths:
-        - /
+  enabled: false
 
 istio:
   enabled: false
