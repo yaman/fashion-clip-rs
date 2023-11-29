@@ -24,3 +24,10 @@ fn test_given_encode_when_sentence_then_return_embedding() {
         assert_abs_diff_eq!(test, response, epsilon = 1e-5);
     }
 }
+
+#[test]
+fn test_given_encode_when_sentence_is_none_then_return_error() {
+    let (embed, _) = setup_text_model();
+    let actual = embed.encode(&vec![]);
+    assert!(actual.is_err());
+}

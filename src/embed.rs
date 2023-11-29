@@ -24,6 +24,9 @@ impl EmbedText {
         &self,
         text: &Vec<String>,
     ) -> Result<Vec<f32>, Box<dyn std::error::Error + Send + Sync>> {
+        if text.is_empty() {
+            return Err("No text provided".into());
+        }
         let preprocessed = self.tokenizer.encode(text.clone(), true)?;
 
         let input_ids_vector = Self::get_input_ids_vector(preprocessed.clone(), text)?;

@@ -2,15 +2,9 @@ mod args;
 mod config;
 mod encoder_service;
 
-use std::time::Duration;
-
 use autometrics::prometheus_exporter;
 use embed_rs::embed::EmbedText;
 use tonic::{codec::CompressionEncoding, transport::Server};
-use tonic_health::{
-    server::{HealthReporter, HealthService},
-    ServingStatus,
-};
 
 use crate::{
     config::Config,
@@ -27,7 +21,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 }
 
 pub async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let config = Config::new("config.toml")?;
+    let config = Config::new("config.toml").expect("Failed to read config file: config.toml");
     // create embed-rs instance
     let embed_rs = EmbedText::new(&config.model.text.onnx_folder, &config.model.text.name)?;
 
