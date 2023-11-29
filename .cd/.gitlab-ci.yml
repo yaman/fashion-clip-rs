@@ -209,7 +209,7 @@ cargo-performance:
   stage: performance
   image: obvionaoe/ghz:latest
   script:
-    - /go/bin/ghz --insecure --enable-compression --proto ./pb/encoder/encoder.proto --call encoder.Encoder.EncodeText -d '{"texts":"{randomString 16 }"}' -c 10 -z 1h --load-schedule=step --load-start=50 --load-end=300 --load-step=10 --load-step-duration=10s personalization-embed-rs-phoenix.modanisa.net
+    - /go/bin/ghz --insecure --enable-compression --proto ./pb/encoder/encoder.proto --call encoder.Encoder.EncodeText -d '{"texts":"{randomString 16 }"}' -c 10 -z 1h --load-schedule=step --load-start=50 --load-end=300 --load-step=10 --load-step-duration=10s personalization-embed-rs-phoenix.modanisa.net:80
   artifacts:
     when: always
     paths:

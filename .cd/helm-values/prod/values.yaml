@@ -45,10 +45,24 @@ autoscaling:
   targetCPUUtilizationPercentage: 70
   targetMemoryUtilizationPercentage: 70
 
-livenessProbe: {}
+livenessProbe:
+  exec:
+    command:
+    - /bin/grpc_health_probe
+    - -addr=:50052
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  failureThreshold: 3
 
 
-readinessProbe: {}
+readinessProbe:
+  exec:
+    command:
+    - /bin/grpc_health_probe
+    - -addr=:50052
+  initialDelaySeconds: 30
+  periodSeconds: 5
+  failureThreshold: 50
 
 resources:
   # limits:
