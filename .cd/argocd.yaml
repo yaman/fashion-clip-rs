@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ${ENV_NAME}-embed-RS
+  name: ${ENV_NAME}-embed-rs
   namespace: argocd
 spec:
   destination:
