@@ -23,6 +23,8 @@ pub struct ModelImage {
     pub cache_folder: String,
     pub onnx_folder: String,
     pub pretrained_model_folder: String,
+    pub image_width: usize,
+    pub image_height: usize,
 }
 
 #[derive(Debug, Deserialize)]

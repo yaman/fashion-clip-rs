@@ -13,7 +13,7 @@ message EncodeTextRequest {
 }
 
 message EncodeImageRequest {
-  repeated bytes images = 2;
+  bytes image = 2;
 }
 
 message EncoderResponse {

@@ -1,5 +1,5 @@
 use autometrics::autometrics;
-use embed_rs::embed::EmbedText;
+use embed_rs::embed::{EmbedImage, EmbedText};
 use tonic::{Request, Response, Status};
 
 pub mod encoder {
@@ -17,6 +17,7 @@ const API_SLO: Objective = Objective::new("embed-rs")
 
 pub struct EncoderService {
     pub embed_text: EmbedText,
+    pub embed_image: EmbedImage,
 }
 
 #[tonic::async_trait]
@@ -26,7 +27,6 @@ impl Encoder for EncoderService {
         &self,
         request: Request<EncodeTextRequest>,
     ) -> Result<Response<EncoderResponse>, Status> {
-        
         let texts = &request.get_ref().texts;
         if texts.is_empty() {
             return Err(Status::invalid_argument("No text provided"));
@@ -45,6 +45,13 @@ impl Encoder for EncoderService {
         &self,
         request: Request<EncodeImageRequest>,
     ) -> Result<Response<EncoderResponse>, Status> {
-        Ok(Response::new(EncoderResponse { embedding: vec![] }))
+        let image = &request.get_ref().image;
+        return match self.embed_image.encode(&vec![image.clone() as Vec<u8>]) {
+            Ok(d) => {
+                let embedding = d.clone().into_iter().flat_map(|i| vec![i]).collect();
+                Ok(Response::new(EncoderResponse { embedding }))
+            }
+            Err(e) => Err(Status::internal(format!("{:?}", e))),
+        };
     }
 }

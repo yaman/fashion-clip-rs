@@ -3,8 +3,8 @@ host="0.0.0.0"
 port=50052
 url="http://localhost:50052"
 tcp_keepalive=20
-http2_keepalive_interval=3600
-http2_keepalive_timeout=20
+http2_keepalive_interval=10
+http2_keepalive_timeout=5
 
 
 [model.text]
@@ -17,6 +17,8 @@ name = "patrickjohncyh/fashion-clip"
 cache_folder = "models/image"
 onnx_folder = "models/image/model.onnx"
 pretrained_model_folder = "models--patrickjohncyh--fashion-clip"
+image_width = 224
+image_height = 224
 
 [test]
 text_embeddings = "tests/data/text_embeddings.json"

@@ -5,7 +5,7 @@ mod encoder_service;
 use std::time::Duration;
 
 use autometrics::prometheus_exporter;
-use embed_rs::embed::EmbedText;
+use embed_rs::embed::{EmbedText, EmbedImage};
 use tonic::{codec::CompressionEncoding, transport::Server};
 
 use crate::{
@@ -25,11 +25,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 pub async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let config = Config::new("config.toml").expect("Failed to read config file: config.toml");
     // create embed-rs instance
-    let embed_rs = EmbedText::new(&config.model.text.onnx_folder, &config.model.text.name)?;
-
+    let embed_text = EmbedText::new(&config.model.text.onnx_folder, &config.model.text.name)?;
+    let embed_image = EmbedImage::new(&config.model.image.onnx_folder, &config.model.image.image_width, &config.model.image.image_height)?;
     // configure gRPC service
     let encoder_service = EncoderService {
-        embed_text: embed_rs,
+        embed_text,
+        embed_image
     };
     let server = EncoderServer::new(encoder_service)
         .accept_compressed(CompressionEncoding::Gzip)
@@ -48,7 +49,6 @@ pub async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>
     Server::builder()
         .http2_keepalive_interval(Some(Duration::from_secs(config.service.http2_keepalive_interval.into())))
         .http2_keepalive_timeout(Some(Duration::from_secs(config.service.http2_keepalive_timeout.into())))
-        .tcp_keepalive(Some(Duration::from_secs(config.service.tcp_keepalive.into())))
         .add_service(health_service)
         .add_service(server)
         

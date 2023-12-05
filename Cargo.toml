@@ -24,6 +24,7 @@ ort = {version = "1.16.3", features = ["load-dynamic"]}
 serde = "1.0.193"
 toml = "0.8.8"
 tonic-health = "0.10.2"
+base64 = "0.21.5"
 
 
 [build-dependencies]

@@ -1,4 +1,5 @@
 from sentence_transformers import SentenceTransformer
+from fashion_clip.fashion_clip import FashionCLIP
 from transformers import AutoTokenizer,CLIPProcessor, CLIPModel
 from PIL import Image
 import json
@@ -19,16 +20,26 @@ def generate_text():
     with open('tests/data/text_embeddings.json', 'w') as f:
         json.dump(output_list, f)
 
-def generate_image():
+def generate_image_():
     model = CLIPModel.from_pretrained("patrickjohncyh/fashion-clip")
     processor = CLIPProcessor.from_pretrained("patrickjohncyh/fashion-clip")
 
     image = Image.open("tests/data/test_image.jpg")
 
-    inputs = processor(text=["a photo of a red shoe", "a photo of a black shoe"],images=image, return_tensors="pt", padding=True)
+    inputs = processor(text=["this is a hat"],images=image, return_tensors="pt", padding=True)
+    print(inputs.keys())
 
     outputs = model(**inputs)
     embeddings = outputs.image_embeds  # this is the image-text similarity score
-    print(embeddings.shape)
+    print(embeddings)
     with open('tests/data/image_embeddings.json', 'w') as f:
         json.dump(embeddings.tolist()[0], f)
+
+def generate_image():
+    fclip = FashionCLIP('fashion-clip')
+    image = Image.open("tests/data/test_image.jpg")
+    # we create image embeddings and text embeddings
+    image_embeddings = fclip.encode_images([image], batch_size=32)
+    print(image_embeddings)
+    with open('tests/data/image_embeddings.json', 'w') as f:
+        json.dump(image_embeddings.tolist()[0], f)
