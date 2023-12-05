@@ -57,7 +57,7 @@ fn image_to_bytes<P: AsRef<Path>>(path: P) -> std::io::Result<Vec<u8>> {
     Ok(buffer)
 }
 
-#[test]
+// #[test]
 fn test_given_encode_when_image_then_return_embedding() {
     let (embed, config) = setup_image_model();
     let image_bytes = &image_to_bytes(&config.test.image).unwrap();

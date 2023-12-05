@@ -1,9 +1,9 @@
 use std::error::Error;
 use std::io::Cursor;
 
-use image::imageops::FilterType;
 use image::io::Reader as ImageReader;
 use image::GenericImageView;
+use image::{imageops::FilterType, DynamicImage};
 use itertools::Itertools;
 use ndarray::{Array, Array2, Array4, ArrayBase, CowArray, CowRepr, Dim, IxDynImpl, OwnedRepr};
 use ort::{Environment, ExecutionProvider, GraphOptimizationLevel, Session, SessionBuilder, Value};
@@ -136,19 +136,11 @@ impl EmbedImage {
             let image = ImageReader::new(Cursor::new(image_bytes))
                 .with_guessed_format()?
                 .decode()?;
-            let image = image.resize_exact(
-                self.image_width as u32,
-                self.image_height as u32,
-                FilterType::CatmullRom,
-            );
-            for (x, y, pixel) in image.pixels() {
-                pixels[[index, 0, x as usize, y as usize]] =
-                    (pixel.0[0] as f32 / 255.0 - mean[0]) / std[0];
-                pixels[[index, 1, x as usize, y as usize]] =
-                    (pixel.0[1] as f32 / 255.0 - mean[1]) / std[1];
-                pixels[[index, 2, x as usize, y as usize]] =
-                    (pixel.0[2] as f32 / 255.0 - mean[2]) / std[2];
-            }
+            let image = self.to_rgb8(image);
+
+            let image = self.crop(image);
+
+            normalize(image, &mut pixels, index, mean, std);
         }
 
         let fixed_dim_array: ArrayBase<OwnedRepr<i64>, Dim<[usize; 1]>> = Array::from_vec(vec![0]);
@@ -164,6 +156,7 @@ impl EmbedImage {
             Value::from_array(session.allocator(), &binding)?,
             Value::from_array(session.allocator(), &dynamic_dim_array)?,
         ])?;
+
         let binding = outputs[3].try_extract()?;
         let embeddings = binding.view();
 
@@ -178,6 +171,40 @@ impl EmbedImage {
             .collect();
         let embedding = embeddings[0].clone();
         Ok(embedding)
+    }
+
+    fn crop(&self, image: DynamicImage) -> DynamicImage {
+        let (width, height) = image.dimensions();
+
+        // Calculate the coordinates for the top-left corner of the crop rectangle
+        let start_x = (width - self.image_width as u32) / 2;
+        let start_y = (height - self.image_height as u32) / 2;
+        image.crop_imm(
+            start_x,
+            start_y,
+            self.image_width as u32,
+            self.image_height as u32,
+        )
+    }
+
+    fn to_rgb8(&self, image: DynamicImage) -> DynamicImage {
+        let image = DynamicImage::ImageRgb8(image.into_rgb8());
+        image.resize_exact(
+            self.image_width as u32,
+            self.image_height as u32,
+            FilterType::CatmullRom,
+        )
+    }
+}
+
+fn normalize(image: DynamicImage, pixels: &mut ArrayBase<CowRepr<'_, f32>, Dim<[usize; 4]>>, index: usize, mean: [f32; 3], std: [f32; 3]) {
+    for (x, y, pixel) in image.pixels() {
+        pixels[[index, 0, x as usize, y as usize]] =
+            (pixel.0[0] as f32 / 255.0 - mean[0]) / std[0];
+        pixels[[index, 1, x as usize, y as usize]] =
+            (pixel.0[1] as f32 / 255.0 - mean[1]) / std[1];
+        pixels[[index, 2, x as usize, y as usize]] =
+            (pixel.0[2] as f32 / 255.0 - mean[2]) / std[2];
     }
 }
 
