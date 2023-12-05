@@ -9,7 +9,7 @@ service Encoder {
 }
 
 message EncodeTextRequest {
-  repeated string texts = 1;
+  string text = 1;
 }
 
 message EncodeImageRequest {

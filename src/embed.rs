@@ -27,16 +27,18 @@ impl EmbedText {
 
     pub fn encode(
         &self,
-        text: &Vec<String>,
+        text: &String,
     ) -> Result<Vec<f32>, Box<dyn std::error::Error + Send + Sync>> {
         if text.is_empty() {
             return Err("No text provided".into());
         }
         let preprocessed = self.tokenizer.encode(text.clone(), true)?;
 
-        let input_ids_vector = Self::get_input_ids_vector(preprocessed.clone(), text)?;
+        let binding = vec![text.to_string()];
+        let input_ids_vector = Self::get_input_ids_vector(preprocessed.clone(), &binding)?;
 
-        let attention_mask_vector = Self::get_attention_mask_vector(preprocessed, text)?;
+        let binding = vec![text.to_string()];
+        let attention_mask_vector = Self::get_attention_mask_vector(preprocessed, &binding)?;
 
         let session = &self.session;
 

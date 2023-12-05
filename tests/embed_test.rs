@@ -5,7 +5,6 @@ use embed_rs::config::Config;
 use embed_rs::embed::{EmbedImage, EmbedText};
 use serde_json::from_str;
 
-
 fn setup_text_model() -> (EmbedText, Config) {
     let config = Config::new("config.toml").unwrap();
     (
@@ -17,7 +16,7 @@ fn setup_text_model() -> (EmbedText, Config) {
 #[test]
 fn test_given_encode_when_sentence_then_return_embedding() {
     let (embed, config) = setup_text_model();
-    let actual = match embed.encode(&vec!["This is an example sentence.".into()]) {
+    let actual = match embed.encode(&"This is an example sentence.".to_string()) {
         Ok(result) => result,
         Err(e) => panic!("Failed to encode sentence: {}", e),
     };
@@ -32,7 +31,7 @@ fn test_given_encode_when_sentence_then_return_embedding() {
 #[test]
 fn test_given_encode_when_sentence_is_none_then_return_error() {
     let (embed, _) = setup_text_model();
-    let actual = embed.encode(&vec![]);
+    let actual = embed.encode(&"".to_string());
     assert!(actual.is_err());
 }
 
@@ -49,7 +48,7 @@ fn setup_image_model() -> (EmbedImage, Config) {
     )
 }
 
-use std::fs::{File, self};
+use std::fs::{self, File};
 use std::io::Read;
 use std::path::Path;
 

@@ -27,11 +27,11 @@ impl Encoder for EncoderService {
         &self,
         request: Request<EncodeTextRequest>,
     ) -> Result<Response<EncoderResponse>, Status> {
-        let texts = &request.get_ref().texts;
-        if texts.is_empty() {
+        let text = &request.get_ref().text;
+        if text.is_empty() {
             return Err(Status::invalid_argument("No text provided"));
         }
-        return match self.embed_text.encode(texts) {
+        return match self.embed_text.encode(text) {
             Ok(d) => {
                 let embedding = d.into_iter().flat_map(|i| vec![i]).collect();
                 Ok(Response::new(EncoderResponse { embedding }))

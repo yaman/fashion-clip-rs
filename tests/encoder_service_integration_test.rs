@@ -39,7 +39,7 @@ mod tests {
         let (config, mut client) = setup_service_client().await;
 
         let request = tonic::Request::new(EncodeTextRequest {
-            texts: vec![config.test.text_example],
+            text: config.test.text_example.to_string(),
         });
 
         let response = client.encode_text(request).await?.into_inner();
@@ -64,7 +64,7 @@ mod tests {
     -> Result<(), Box<dyn std::error::Error>> {
         let (_, mut client) = setup_service_client().await;
 
-        let request = tonic::Request::new(EncodeTextRequest { texts: vec![] });
+        let request = tonic::Request::new(EncodeTextRequest { text: "".to_string() });
 
         let response = client.encode_text(request).await;
         assert!(matches!(
