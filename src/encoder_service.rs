@@ -22,6 +22,7 @@ pub struct EncoderService {
 
 #[tonic::async_trait]
 impl Encoder for EncoderService {
+    
     #[autometrics(objective = API_SLO)]
     async fn encode_text(
         &self,

@@ -1,12 +1,11 @@
 use std::error::Error;
 use std::io::Cursor;
 
-use base64::{engine::general_purpose, Engine as _};
 use image::imageops::FilterType;
 use image::io::Reader as ImageReader;
 use image::GenericImageView;
 use itertools::Itertools;
-use ndarray::{Array, Array2, Array3, Array4, ArrayBase, CowArray, CowRepr, Dim, IxDyn, IxDynImpl, OwnedRepr};
+use ndarray::{Array, Array2, Array4, ArrayBase, CowArray, CowRepr, Dim, IxDynImpl, OwnedRepr};
 use ort::{Environment, ExecutionProvider, GraphOptimizationLevel, Session, SessionBuilder, Value};
 use tokenizers::{Encoding, Tokenizer};
 
@@ -180,56 +179,6 @@ impl EmbedImage {
         let embedding = embeddings[0].clone();
         Ok(embedding)
     }
-
-    // pub fn encode(
-    //     &self,
-    //     image: &Vec<u8>,
-    // ) -> Result<Vec<f32>, Box<dyn std::error::Error + Send + Sync>> {
-    //     let mean = [0.48145466, 0.4578275, 0.40821073]; // CLIP Dataset
-    //     let std = [0.26862954, 0.261_302_6, 0.275_777_1];
-
-    //     let mut pixels = CowArray::from(Array3::<f32>::zeros(Dim([
-    //         3,
-    //         self.image_width,
-    //         self.image_height,
-    //     ])));
-
-    //     let image = image::load_from_memory(image)?;
-
-    //     let image = image.resize_exact(
-    //         self.image_width as u32,
-    //         self.image_height as u32,
-    //         FilterType::CatmullRom,
-    //     );
-    //     for (x, y, pixel) in image.pixels() {
-    //         pixels[[0, x as usize, y as usize]] = (pixel.0[0] as f32 / 255.0 - mean[0]) / std[0];
-    //         pixels[[1, x as usize, y as usize]] = (pixel.0[1] as f32 / 255.0 - mean[1]) / std[1];
-    //         pixels[[2, x as usize, y as usize]] = (pixel.0[2] as f32 / 255.0 - mean[2]) / std[2];
-    //     }
-
-    //     let session = &self.session;
-    //     let pixels: CowArray<i64, IxDyn> = CowArray::from(pixels.mapv(|x| x as i64));
-    //     let outputs: Vec<Value<'_>> = session.run(vec![Value::from_array(
-    //         session.allocator(),
-    //         &pixels.into_dyn(),
-    //     )?])?;
-    //     let binding = outputs[0].try_extract()?;
-    //     let embeddings = binding.view();
-
-    //     let seq_len = embeddings
-    //         .shape()
-    //         .get(1)
-    //         .ok_or("cannot find seq_len with index 1 for image embeddings")?;
-
-    //     let embeddings = embeddings
-    //         .iter()
-    //         .copied()
-    //         .chunks(*seq_len)
-    //         .into_iter()
-    //         .map(|b| b.collect::<Vec<f32>>())
-    //         .collect::<Vec<Vec<f32>>>();
-    //     Ok(embeddings[0].clone())
-    // }
 }
 
 fn create_session(model_path: &str) -> Result<Session, Box<dyn Error + Send + Sync>> {

@@ -11,7 +11,6 @@ mod tests {
     use encoder::EncodeTextRequest;
     use tonic::transport::Channel;
 
-    use base64::{engine::general_purpose, Engine as _};
     use encoder::EncodeImageRequest;
 
     use std::fs::File;

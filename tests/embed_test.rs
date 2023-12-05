@@ -1,6 +1,4 @@
 use approx::assert_abs_diff_eq;
-use base64::engine::general_purpose;
-use base64::Engine;
 use embed_rs::config::Config;
 use embed_rs::embed::{EmbedImage, EmbedText};
 use serde_json::from_str;
@@ -59,7 +57,7 @@ fn image_to_bytes<P: AsRef<Path>>(path: P) -> std::io::Result<Vec<u8>> {
     Ok(buffer)
 }
 
-// #[test]
+#[test]
 fn test_given_encode_when_image_then_return_embedding() {
     let (embed, config) = setup_image_model();
     let image_bytes = &image_to_bytes(&config.test.image).unwrap();
