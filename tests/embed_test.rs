@@ -37,9 +37,7 @@ fn setup_image_model() -> (EmbedImage, Config) {
     let config = Config::new("config.toml").unwrap();
     (
         EmbedImage::new(
-            &config.model.image.onnx_folder,
-            &config.model.image.image_width,
-            &config.model.image.image_height,
+            &config.model.image.onnx_folder
         )
         .unwrap(),
         config,
@@ -57,12 +55,12 @@ fn image_to_bytes<P: AsRef<Path>>(path: P) -> std::io::Result<Vec<u8>> {
     Ok(buffer)
 }
 
-// #[test]
+#[test]
 fn test_given_encode_when_image_then_return_embedding() {
     let (embed, config) = setup_image_model();
     let image_bytes = &image_to_bytes(&config.test.image).unwrap();
     println!("image bytes: {:?}", image_bytes.len());
-    let actual = match embed.encode(&vec![image_bytes.clone() as Vec<u8>]) {
+    let actual = match embed.encode(image_bytes.clone() as Vec<u8>) {
         Ok(result) => result,
         Err(e) => panic!("Failed to encode sentence: {}", e),
     };

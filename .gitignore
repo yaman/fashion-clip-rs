@@ -8,3 +8,4 @@ __pycache__
 *.py[cod]
 *$py.class
 coverage
+github+id_ed25519

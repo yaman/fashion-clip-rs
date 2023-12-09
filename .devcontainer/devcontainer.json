@@ -12,11 +12,6 @@
         "--ipc=host"
     ],
     "mounts": [
-        // important: see respective sections in setup.sh
-        // uncomment if you want to use your local aws credentials
-        //"source=${env:HOME}${env:USERPROFILE}/.aws,target=/root/.aws,type=bind",
-        // uncomment if you want to use the host docker socket inside the container
-        //"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
     ],
     "customizations": {
         "vscode": {

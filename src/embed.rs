@@ -1,13 +1,10 @@
 use std::error::Error;
-use std::io::Cursor;
-
-use image::io::Reader as ImageReader;
-use image::GenericImageView;
-use image::{imageops::FilterType, DynamicImage};
 use itertools::Itertools;
-use ndarray::{Array, Array2, Array4, ArrayBase, CowArray, CowRepr, Dim, IxDynImpl, OwnedRepr};
+use ndarray::{Array, Array2, ArrayBase, CowArray, CowRepr, Dim, IxDynImpl};
 use ort::{Environment, ExecutionProvider, GraphOptimizationLevel, Session, SessionBuilder, Value};
 use tokenizers::{Encoding, Tokenizer};
+
+use crate::clip_image_processor::CLIPImageProcessor;
 
 pub struct EmbedText {
     session: Session,
@@ -101,60 +98,37 @@ impl EmbedText {
 
 pub struct EmbedImage {
     session: Session,
-    image_width: usize,
-    image_height: usize,
+    preprocesser: CLIPImageProcessor
+    
 }
 
 impl EmbedImage {
     pub fn new(
-        model_path: &str,
-        image_width: &usize,
-        image_height: &usize,
+        model_path: &str
     ) -> Result<Self, Box<dyn Error + Send + Sync>> {
         let session = create_session(model_path)?;
+        let clip_image_processor = CLIPImageProcessor::default();
         Ok(Self {
             session,
-            image_width: *image_width,
-            image_height: *image_height,
+            preprocesser: clip_image_processor
         })
     }
 
     pub fn encode(
         &self,
-        images_bytes: &Vec<Vec<u8>>,
+        images_bytes: Vec<u8>,
     ) -> Result<Vec<f32>, Box<dyn std::error::Error + Send + Sync>> {
-        let mean = [0.48145466, 0.4578275, 0.40821073]; // CLIP Dataset
-        let std = [0.26862954, 0.26130258, 0.27577711];
+        let pixels = self.preprocesser.preprocess(images_bytes.to_vec());
 
-        let mut pixels = CowArray::from(Array4::<f32>::zeros(Dim([
-            images_bytes.len(),
-            3,
-            self.image_width,
-            self.image_height,
-        ])));
-        for (index, image_bytes) in images_bytes.iter().enumerate() {
-            let image = ImageReader::new(Cursor::new(image_bytes))
-                .with_guessed_format()?
-                .decode()?;
-            let image = self.to_rgb8(image);
+        let placeholder_input_ids = Array::from_elem((1, 1), 0_i64).into_dyn().into(); // Placeholder for input_ids
+        let placeholder_attention_mask = Array::from_elem((1, 1), 0_i64).into_dyn().into(); // Placeholder for attention_mask
 
-            let image = self.crop(image);
-
-            normalize(image, &mut pixels, index, mean, std);
-        }
-
-        let fixed_dim_array: ArrayBase<OwnedRepr<i64>, Dim<[usize; 1]>> = Array::from_vec(vec![0]);
-        let dynamic_dim_array: ArrayBase<CowRepr<_>, _> = fixed_dim_array
-            .into_shape((1, 1))
-            .unwrap()
-            .into_dyn()
-            .into();
         let session = &self.session;
         let binding = pixels.into_dyn();
         let outputs = session.run(vec![
-            Value::from_array(session.allocator(), &dynamic_dim_array)?,
+            Value::from_array(session.allocator(), &placeholder_input_ids)?,
             Value::from_array(session.allocator(), &binding)?,
-            Value::from_array(session.allocator(), &dynamic_dim_array)?,
+            Value::from_array(session.allocator(), &placeholder_attention_mask)?,
         ])?;
 
         let binding = outputs[3].try_extract()?;
@@ -171,40 +145,6 @@ impl EmbedImage {
             .collect();
         let embedding = embeddings[0].clone();
         Ok(embedding)
-    }
-
-    fn crop(&self, image: DynamicImage) -> DynamicImage {
-        let (width, height) = image.dimensions();
-
-        // Calculate the coordinates for the top-left corner of the crop rectangle
-        let start_x = (width - self.image_width as u32) / 2;
-        let start_y = (height - self.image_height as u32) / 2;
-        image.crop_imm(
-            start_x,
-            start_y,
-            self.image_width as u32,
-            self.image_height as u32,
-        )
-    }
-
-    fn to_rgb8(&self, image: DynamicImage) -> DynamicImage {
-        let image = DynamicImage::ImageRgb8(image.into_rgb8());
-        image.resize_exact(
-            self.image_width as u32,
-            self.image_height as u32,
-            FilterType::CatmullRom,
-        )
-    }
-}
-
-fn normalize(image: DynamicImage, pixels: &mut ArrayBase<CowRepr<'_, f32>, Dim<[usize; 4]>>, index: usize, mean: [f32; 3], std: [f32; 3]) {
-    for (x, y, pixel) in image.pixels() {
-        pixels[[index, 0, x as usize, y as usize]] =
-            (pixel.0[0] as f32 / 255.0 - mean[0]) / std[0];
-        pixels[[index, 1, x as usize, y as usize]] =
-            (pixel.0[1] as f32 / 255.0 - mean[1]) / std[1];
-        pixels[[index, 2, x as usize, y as usize]] =
-            (pixel.0[2] as f32 / 255.0 - mean[2]) / std[2];
     }
 }
 

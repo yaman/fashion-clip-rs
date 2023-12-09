@@ -47,7 +47,7 @@ impl Encoder for EncoderService {
         request: Request<EncodeImageRequest>,
     ) -> Result<Response<EncoderResponse>, Status> {
         let image = &request.get_ref().image;
-        return match self.embed_image.encode(&vec![image.clone() as Vec<u8>]) {
+        return match self.embed_image.encode(image.clone()) {
             Ok(d) => {
                 let embedding = d.clone().into_iter().flat_map(|i| vec![i]).collect();
                 Ok(Response::new(EncoderResponse { embedding }))

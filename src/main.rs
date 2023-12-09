@@ -1,6 +1,7 @@
 mod args;
 mod config;
 mod encoder_service;
+mod clip_image_processor;
 
 use std::time::Duration;
 
@@ -26,7 +27,7 @@ pub async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>
     let config = Config::new("config.toml").expect("Failed to read config file: config.toml");
     // create embed-rs instance
     let embed_text = EmbedText::new(&config.model.text.onnx_folder, &config.model.text.name)?;
-    let embed_image = EmbedImage::new(&config.model.image.onnx_folder, &config.model.image.image_width, &config.model.image.image_height)?;
+    let embed_image = EmbedImage::new(&config.model.image.onnx_folder)?;
     // configure gRPC service
     let encoder_service = EncoderService {
         embed_text,

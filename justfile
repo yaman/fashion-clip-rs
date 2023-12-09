@@ -25,7 +25,7 @@ coverage:
     ORT_DYLIB_PATH=./target/release/libonnxruntime.so cargo tarpaulin -o xml --output-dir coverage --skip-clean
 
 watch-test:
-    ORT_DYLIB_PATH=./target/release/libonnxruntime.so cargo watch -x test -d 2
+    ORT_DYLIB_PATH=./target/release/libonnxruntime.so cargo watch -x "test --no-fail-fast" -d 2
 
 watch-run:
     ORT_DYLIB_PATH=./target/release/libonnxruntime.so cargo watch -x run

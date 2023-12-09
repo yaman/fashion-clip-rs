@@ -73,7 +73,7 @@ mod tests {
         Ok(())
     }
 
-    // #[tokio::test]
+    #[tokio::test]
     async fn test_given_encode_image_request_when_sent_empty_image_then_return_embedding()
     -> Result<(), Box<dyn std::error::Error>> {
         let (config, mut client) = setup_service_client().await;

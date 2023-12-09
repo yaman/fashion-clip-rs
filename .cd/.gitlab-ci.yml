@@ -100,7 +100,6 @@ unit-test:
     - export ORT_DYLIB_PATH="./target/release/libonnxruntime.so"
     - ./target/embed-rs &
     - cargo test
-  allow_failure: true
 
 base-container-security:
   stage: security

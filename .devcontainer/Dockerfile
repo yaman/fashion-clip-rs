@@ -118,10 +118,19 @@ RUN curl -L https://github.com/bojand/ghz/releases/download/v0.117.0/ghz-linux-x
     && tar -xzvf /ghz.tar.gz -C /usr/local/bin \
     && rm /ghz.tar.gz
 
+COPY .devcontainer/id_ed25519 /home/canavar/.ssh/id_ed25519
+
+RUN chmod 600 /home/canavar/.ssh/id_ed25519 \
+    && chown canavar:canavar /home/canavar/.ssh/id_ed25519
+
+RUN apt update && apt install -y neovim
+
+
 USER canavar
 
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
 ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/
+
 
 CMD ["/bin/zsh"]

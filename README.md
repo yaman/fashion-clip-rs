@@ -1,4 +1,84 @@
-# RustEmbed
+
+# Embed-RS: Rust-based Embedding Transformation Services
+
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Rust Version](https://img.shields.io/badge/rust-recent_version-blue)
+
+## 🌟 Introduction
+Introducing Embed-RS, a complete Rust reimagination of our embedding transformation service. This version leverages the power of Rust for both GRPC services and as a standalone library, providing highly efficient text and image embeddings.
+
+## 🚀 Features
+- **Entirely in Rust:** Re-written for optimal performance.
+- **GRPC with Tonic:** Robust and efficient GRPC service.
+- **Multilingual Text Embedding:** Utilizing ONNX converted `sentence-transformers/clip-ViT-B-32-multilingual-v1`.
+- **Fashion-Focused Image Embedding:** With ONNX converted `patrickjohncyh/fashion-clip`.
+- **Cargo for Package Management:** Ensuring reliable dependency management.
+- **Built-in Rust Testing:** Leveraging Rust's testing capabilities.
+- **GRPC Performance Testing:** With `ghz.sh`.
+- **Docker Support:** For containerized deployment.
+- **ONNX Runtime with `pykeio/ort` Crate:** For model loading and inference.
+- **HF Tokenizers:** For preprocessing in text embedding.
+- **Standalone Library Support:** Can be included in other Rust projects.
+- **Coverage with Tarpaulin:** For detailed test coverage analysis.
+
+## 🛠 Getting Started
+
+### Prerequisites
+Ensure you have the following installed:
+- Recent version of Rust
+- Docker for containerized deployment
+- GHZ for GRPC performance testing
+- Tarpaulin for coverage reporting
+
+### 🌐 Installation & Setup
+#### Build with Cargo
+```bash
+cargo build --release
+```
+#### Build Docker Image
+```bash
+docker build -t embed-rs .
+```
+#### Run Locally
+```bash
+ORT_DYLIB_PATH=./target/release/libonnxruntime.so cargo run --release
+```
+#### Run Docker Container
+```bash
+docker run -p 50052:50052 embed-rs
+```
+
+## 📚 Usage
+Embed-RS can be used as both a GRPC service and a library in Rust projects.
+
+## 🧪 Testing
+
+### Performance Testing for Text
+```bash
+ghz --insecure --enable-compression --proto ./pb/encoder/encoder.proto --call encoder.Encoder.EncodeText -d '{"texts":"{randomString 16 }"}' -c 10 -z 1h --load-schedule=step --load-start=50 --load-end=300 --load-step=10 --load-step-duration=10s 0.0.0.0:50052
+```
+
+### Unit Testing
+```bash
+ORT_DYLIB_PATH=./target/release/libonnxruntime.so cargo test
+```
+
+### Coverage Reporting
+```bash
+ORT_DYLIB_PATH=./target/release/libonnxruntime.so cargo tarpaulin -o xml --output-dir coverage --skip-clean
+```
+
+## 👥 Contributing
+Contributions are welcome! Please refer to our [contributing guidelines](LINK_TO_CONTRIBUTING_GUIDELINES) for more information.
+
+## 📜 License
+This project is licensed under the MIT License - see the [LICENSE.md](LINK_TO_LICENSE) file for details.
+
+## 📞 Contact
+For questions or feedback, please reach out to [Your Contact Information].
+
+# RustEmbed: Advanced Rust gRPC Service for Fashion-Clip Embeddings
 
 RustEmbed is a Rust project that provides a gRPC service for creating embeddings using the Fashion-Clip model. It imports an ONNX file (at the moment, the Fashion-Clip PyTorch library from Hugging Face with an optimum CLI to convert it to ONNX format), creates a gRPC service API to create either text or image embeddings using the Fashion-Clip model, runs inference for the given text or image, and returns the output vectors as a gRPC response.
 
@@ -15,24 +95,6 @@ To use the Fashion-Clip model with RustEmbed, you need to convert it to ONNX for
 
 1. Install the Hugging Face Optimum tool: `pip install optimum`
 2. Download and convert the Fashion-Clip model from Hugging Face: `optimum-cli export onnx --model patrickjohncyh/fashion-clip fashion-clip-onnx --device "cuda"`
-
-## Usage
-
-To run the gRPC service, use the following command:
-
-```bash
-
-cargo run
-
-```
-
-The service listens on port 50052 by default. You can change the port by setting the `LISTEN` environment variable:
-
-```bash
-
-LISTEN=0.0.0.0:50053 cargo run
-
-```
 
 ## API
 
@@ -53,8 +115,8 @@ message TextRequest {
 Response:
 
 ```protobuf
-message TextResponse {
-  repeated float32 embedding = 1;
+message EncoderResponse {
+  repeated float embedding = 3;
 }
 ```
 
@@ -66,16 +128,17 @@ Request:
 
 ```protobuf
 message ImageRequest {
-  bytes image = 1;
+  bytes image = 2;
 }
 ```
 
 Response:
 
 ```protobuf
-message ImageResponse {
-  repeated float32 embedding = 1;
+message EncoderResponse {
+  repeated float embedding = 3;
 }
+
 ```
 
 ## Contributing
@@ -94,18 +157,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 This project was created by [Yaman](https://github.com/yaman).
 
-
-
- -[✓] ONNX model output names match reference model (text_embeds, logits_per_image, logits_per_text, image_embeds)
-        - Validating ONNX Model output "logits_per_image":
-                -[✓] (2, 2) matches (2, 2)
-                -[✓] all values close (atol: 1e-05)
-        - Validating ONNX Model output "logits_per_text":
-                -[✓] (2, 2) matches (2, 2)
-                -[✓] all values close (atol: 1e-05)
-        - Validating ONNX Model output "text_embeds":
-                -[✓] (2, 512) matches (2, 512)
-                -[✓] all values close (atol: 1e-05)
-        - Validating ONNX Model output "image_embeds":
-                -[✓] (2, 512) matches (2, 512)
-                -[✓] all values close (atol: 1e-05)
