@@ -9,3 +9,5 @@ __pycache__
 *$py.class
 coverage
 id_ed25519
+.cd
+*.ipynb
