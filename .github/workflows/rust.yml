@@ -46,6 +46,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - name: install protoc
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y protobuf-compiler
     - name: Publish to crates.io
       run: |
         cargo login ${{ secrets.CRATES_IO_TOKEN }}
