@@ -1,8 +1,14 @@
 [package]
-name = "embed-rs"
+name = "fashion-clip-rs"
 version = "0.1.0"
 edition = "2021"
-
+authors = ["canavar"]
+description = "A complete(grpc service and lib) Rust inference with multilingual embedding support. This version leverages the power of Rust for both GRPC services and as a standalone library, providing highly efficient text and image embeddings for fashion."
+license = "MIT License"
+readme = "README.md"
+license-file = "LICENSE.md"
+repository = "github.com/yaman/fashion-clip-rs"
+keywords = ["fashion", "onnx", "clip", "multilingual", "embedding", "inference", "grpc", "rust"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]

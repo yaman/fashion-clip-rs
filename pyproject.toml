@@ -23,6 +23,9 @@ pillow = "^10.1.0"
 rembg = "^2.0.52"
 optimum = {extras = ["onnxruntime"], version = "^1.15.0"}
 
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.27.1"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
