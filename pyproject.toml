@@ -21,6 +21,7 @@ six = "^1.16.0"
 torchvision = "^0.16.1"
 pillow = "^10.1.0"
 rembg = "^2.0.52"
+optimum = {extras = ["onnxruntime"], version = "^1.15.0"}
 
 [build-system]
 requires = ["poetry-core"]
