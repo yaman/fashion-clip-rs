@@ -50,6 +50,10 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y protobuf-compiler
+    - name: Publish to crates.io dry run
+      run: |
+        cargo login ${{ secrets.CRATES_IO_TOKEN }}
+        cargo publish --dry-run
     - name: Publish to crates.io
       run: |
         cargo login ${{ secrets.CRATES_IO_TOKEN }}
