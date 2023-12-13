@@ -23,7 +23,7 @@ image = "0.24.7"
 clap = { version = "4.4.8", features = ["derive"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 serde_json = "1.0.108"
-autometrics = { version = "*", features = ["prometheus-exporter"] }
+autometrics = { version = "1.0.0", features = ["prometheus-exporter"] }
 axum = "0.7.1"
 ort = {version = "1.16.3", features = ["load-dynamic"]}
 serde = "1.0.193"
