@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use embed_rs::clip_image_processor::CLIPImageProcessor;
+    use fashion_clip_rs::clip_image_processor::CLIPImageProcessor;
     use image::{open, ImageBuffer, Rgb};
 
     fn get_image() -> ImageBuffer<Rgb<u8>, Vec<u8>> {

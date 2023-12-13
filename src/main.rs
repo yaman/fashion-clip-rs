@@ -1,4 +1,3 @@
-mod args;
 mod config;
 mod encoder_service;
 mod clip_image_processor;
@@ -6,7 +5,7 @@ mod clip_image_processor;
 use std::time::Duration;
 
 use autometrics::prometheus_exporter;
-use embed_rs::embed::{EmbedText, EmbedImage};
+use fashion_clip_rs::embed::{EmbedText, EmbedImage};
 use tonic::{codec::CompressionEncoding, transport::Server};
 
 use crate::{

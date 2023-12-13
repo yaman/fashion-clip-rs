@@ -1,6 +1,6 @@
 use approx::assert_abs_diff_eq;
-use embed_rs::config::Config;
-use embed_rs::embed::{EmbedImage, EmbedText};
+use fashion_clip_rs::config::Config;
+use fashion_clip_rs::embed::{EmbedImage, EmbedText};
 use serde_json::from_str;
 
 fn setup_text_model() -> (EmbedText, Config) {

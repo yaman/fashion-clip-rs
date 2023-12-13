@@ -1,5 +1,5 @@
 use autometrics::autometrics;
-use embed_rs::embed::{EmbedImage, EmbedText};
+use fashion_clip_rs::embed::{EmbedText, EmbedImage};
 use tonic::{Request, Response, Status};
 
 pub mod encoder {

@@ -6,7 +6,7 @@ mod tests {
     }
 
     use approx::assert_abs_diff_eq;
-    use embed_rs::config::Config;
+    use fashion_clip_rs::config::Config;
     use encoder::encoder_client::EncoderClient;
     use encoder::EncodeTextRequest;
     use tonic::transport::Channel;
