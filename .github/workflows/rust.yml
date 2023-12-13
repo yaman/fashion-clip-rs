@@ -61,7 +61,7 @@ jobs:
     - name: Publish to crates.io dry run
       run: |
         cargo login ${{ secrets.CRATES_IO_TOKEN }}
-        cargo release patch --execute
+        yes | cargo release patch --execute
 
 
  
