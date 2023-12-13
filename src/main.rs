@@ -54,7 +54,7 @@ pub async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>
         
         .serve(grpc_addr)
         .await
-        .expect("Failed to start gRPC(rustembed) server");
+        .expect("Failed to start gRPC(fashion-clip-rs) server");
 
     Ok(())
 }

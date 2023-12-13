@@ -45,7 +45,7 @@ impl EmbedText {
             Value::from_array(session.allocator(), &attention_mask_vector)?,
         ])?;
 
-        let text_embed_index = 0;
+        let text_embed_index = 1;
         let embeddings = try_extract(outputs, text_embed_index)?;
         Ok(embeddings)
     }
