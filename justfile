@@ -19,7 +19,7 @@ check:
     cargo clippy
 
 unit-test:
-    ORT_DYLIB_PATH=./target/release/libonnxruntime.so cargo test
+    ORT_DYLIB_PATH=./target/release/libonnxruntime.so cargo test --release --test embed_test --test clip_image_processor_test
 
 coverage:
     ORT_DYLIB_PATH=./target/release/libonnxruntime.so cargo tarpaulin -o xml --output-dir coverage --skip-clean
