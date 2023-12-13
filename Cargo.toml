@@ -7,7 +7,7 @@ description = "A complete(grpc service and lib) Rust inference with multilingual
 license = "MIT"
 readme = "README.md"
 license-file = "LICENSE.md"
-repository = "github.com/yaman/fashion-clip-rs"
+repository = "https://github.com/yaman/fashion-clip-rs"
 keywords = ["fashion", "onnx", "clip", "multilingual", "embedding", "inference", "grpc", "rust"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
