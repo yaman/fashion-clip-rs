@@ -54,7 +54,31 @@ jobs:
       run: |
         cargo login ${{ secrets.CRATES_IO_TOKEN }}
         cargo publish --dry-run
-    - name: Publish to crates.io
+
+    - name: Cache publish-action bin
+      id: cache-publish-action
+      uses: actions/cache@v3
+      env:
+        cache-name: cache-publish-action
+      with:
+        path: ~/.cargo
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-v0.2.0
+
+    # install publish-action by cargo in github action
+    - name: Install publish-action
+      if: steps.cache-publish-action.outputs.cache-hit != 'true'
+      run:
+        cargo install publish-action --version=0.2.0
+    
+    - name: Run publish-action
+      id: publish-action
+      run:
+        publish-action
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_WORKFLOW_TOKEN }}
+        CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+
+    - name: Update Changelog.md
+      if: steps.publish-action.outputs.new_version == 'true' && steps.publish-action.outputs.publish == 'true'
       run: |
-        cargo login ${{ secrets.CRATES_IO_TOKEN }}
-        cargo publish
+        changelog -o Changelog.md
