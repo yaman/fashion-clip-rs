@@ -40,3 +40,13 @@ jobs:
       run: just download-models
     - name: Run tests
       run: just unit-test
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Publish to crates.io
+      run: |
+        cargo login ${{ secrets.CRATES_IO_TOKEN }}
+        cargo publish
