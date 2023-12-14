@@ -20,7 +20,7 @@ fn test_given_encode_when_sentence_then_return_embedding() {
     };
     let file_content = fs::read_to_string(config.test.unwrap().text_embeddings).unwrap();
     let expected: Vec<f32> = from_str(&file_content).unwrap();
-
+    assert!(actual.len() == 512);
     for (test, response) in expected.iter().zip(actual.iter()) {
         assert_abs_diff_eq!(test, response, epsilon = 1e-5);
     }
