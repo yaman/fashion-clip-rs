@@ -21,6 +21,9 @@ check:
 unit-test:
     ORT_DYLIB_PATH=./target/release/libonnxruntime.so cargo test --release --test embed_test --test clip_image_processor_test
 
+integration-test:
+    ORT_DYLIB_PATH=./target/release/libonnxruntime.so cargo test --release --test encoder_service_integration_test
+
 coverage:
     ORT_DYLIB_PATH=./target/release/libonnxruntime.so cargo tarpaulin -o xml --output-dir coverage --skip-clean
 
@@ -31,5 +34,5 @@ watch-run:
     ORT_DYLIB_PATH=./target/release/libonnxruntime.so cargo watch -x run
 
 download-models:
-    poetry run convert_text_model
-    poetry run convert_image_model
+    optimum-cli export onnx -m sentence-transformers/clip-ViT-B-32-multilingual-v1 --task feature-extraction models/text 
+    optimum-cli export onnx -m patrickjohncyh/fashion-clip --task feature-extraction models/image

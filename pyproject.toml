@@ -31,7 +31,5 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-convert_text_model = "src.convert.text_model:convert"
-convert_image_model = "src.convert.image_model:convert"
 generate_test_text_data = "tests.data.generate_data:generate_text"
 generate_test_image_data = "tests.data.generate_data:generate_image"

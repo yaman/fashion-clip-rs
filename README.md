@@ -1,12 +1,17 @@
 
-# fashion-clip-rs: Rust-based fashion-clip service
+# fashion-clip-rs: fashion-clip service in Rust
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Rust Version](https://img.shields.io/badge/rust-recent_version-blue)
 
 ## 🌟 Introduction
-fashion-clip-rs is the onnx ready version of [fashion-clip](https://github.com/patrickjohncyh/fashion-clip) transformers model entirely written in Rust with the help of pykeio/ort. This version leverages the power of Rust for both GRPC services and as a standalone library, providing highly efficient text and image embeddings especially for fashion with multilingual capability.
+fashion-clip-rs is the onnx ready version of [fashion-clip](https://github.com/patrickjohncyh/fashion-clip) transformers model entirely written in Rust with the help of pykeio/ort. It imports an ONNX file (at the moment, the Fashion-Clip PyTorch library from Hugging Face with an optimum CLI to convert it to ONNX format), creates a gRPC service API to create either text or image embeddings using the Fashion-Clip model and clip-ViT-B-32-multilingual-v1, runs inference for the given text or image, and returns the output vectors as a gRPC response.
+
+fashion-clip-rs provides highly efficient text and image embeddings especially for fashion with multilingual capability.
+
+This project can be used as a standalone library to include rust projects.
+
 
 ## 🚀 Features
 - **Entirely in Rust:** Re-written for optimal performance.
@@ -27,30 +32,88 @@ fashion-clip-rs is the onnx ready version of [fashion-clip](https://github.com/p
 ### Prerequisites
 Ensure you have the following installed:
 - Recent version of Rust
-- Docker for containerized deployment
-- GHZ for GRPC performance testing
-- Tarpaulin for coverage reporting
+- [Just](https://github.com/casey/just)
+- Docker
+- [ghz](https://ghz.sh/) for GRPC performance testing
+- [Tarpaulin](https://crates.io/crates/cargo-tarpaulin) for coverage reporting
+- python >3.11 to export onnx model using hf optimum
 
-### 🌐 Installation & Setup
-#### Build with Cargo
+## Installation
+
+1. Install Rust and Cargo: https://www.rust-lang.org/tools/install
+2. Install [Just](https://github.com/casey/just)
+3. Install [Tarpaulin](https://crates.io/crates/cargo-tarpaulin) *Optional: for coverage reports*
+4. Install [ghz](https://ghz.sh/) *Optional: for performance testing*
+5. Clone the repository: `git clone https://github.com/yaman/fashion-clip-rs.git`
+6. Change into the project directory: `cd fashion-clip-rs`
+7. Build the project: `just build`
+
+## Model Export
+
+To use the Fashion-Clip model and clip-ViT-B-32-multilingual-v1 with fashion-clip-rs, you need to convert it to ONNX format using the Hugging Face Optimum tool.
+
+1. install latest optimum cli:
 ```bash
-cargo build --release
+python -m pip install git+https://github.com/huggingface/optimum.git
 ```
-#### Build Docker Image
+2. For clip-ViT-B-32-multilingual-v1: 
 ```bash
-docker build -t embed-rs .
+optimum-cli export onnx -m sentence-transformers/clip-ViT-B-32-multilingual-v1 --task feature-extraction models/text 
 ```
-#### Run Locally
+3. For fashion-clip:
 ```bash
-ORT_DYLIB_PATH=./target/release/libonnxruntime.so cargo run --release
+optimum-cli export onnx -m patrickjohncyh/fashion-clip --task feature-extraction models/image
 ```
-#### Run Docker Container
+
+**Note 1**: Accurate exporting of **clip-ViT-B-32-multilingual-v1** depends on latest version of optimum. So, do not skip first step even if you have already optimum installed
+
+**Note 2**: At the moment, we are using *clip-ViT-B-32-multilingual-v1* to generate **text** embeddings. *fashion-clip* to generate **image** embeddings.
+
+## Setup(Build & Run)
+
+### Build
 ```bash
-docker run -p 50052:50052 embed-rs
+just build
 ```
+### Build Docker Image
+```bash
+just build-docker
+```
+### Run Locally
+```bash
+just run
+```
+### Run Docker Container
+```bash
+just run-docker
+```
+
+## 🧪 Testing
+### Unit Testing
+```bash
+just unit-test
+```
+
+### Integration Testing
+```bash
+just integration-test
+```
+
+### Coverage Reporting
+```bash
+just coverage
+```
+
+### Performance Testing for Text
+```bash
+just perf-test-for-text
+```
+
 
 ## 📚 Usage as a library
 fashion-clip-rs can also be used as a library in Rust projects.
+
+**Note**: models must be ready under models/text and models/image directories. Check [Model Export section](#model-export)
 
 Add library to your project:
 ```bash
@@ -73,62 +136,6 @@ let embed_text = EmbedText::new(&"models/text/model.onnx", &"sentence-transforme
 let query_embedding = embed_text.encode(&"this is a sentence".to_string());
 
 ```
-
-## 🧪 Testing
-
-### Performance Testing for Text
-```bash
-ghz --insecure --enable-compression --proto ./pb/encoder/encoder.proto --call encoder.Encoder.EncodeText -d '{"texts":"{randomString 16 }"}' -c 10 -z 1h --load-schedule=step --load-start=50 --load-end=300 --load-step=10 --load-step-duration=10s 0.0.0.0:50052
-```
-
-### Unit Testing
-```bash
-ORT_DYLIB_PATH=./target/release/libonnxruntime.so cargo test
-```
-
-### Coverage Reporting
-```bash
-ORT_DYLIB_PATH=./target/release/libonnxruntime.so cargo tarpaulin -o xml --output-dir coverage --skip-clean
-```
-
-## 👥 Contributing
-Contributions are welcome! Please refer to our [contributing guidelines](LINK_TO_CONTRIBUTING_GUIDELINES) for more information.
-
-## 📜 License
-This project is licensed under the MIT License - see the [LICENSE.md](LINK_TO_LICENSE) file for details.
-
-## 📞 Contact
-For questions or feedback, please reach out to [Your Contact Information].
-
-# fashion-clip-rs: Advanced Rust gRPC Service for Fashion-Clip Embeddings
-
-fashion-clip-rs is a Rust project that provides a gRPC service for creating embeddings using the Fashion-Clip model. It imports an ONNX file (at the moment, the Fashion-Clip PyTorch library from Hugging Face with an optimum CLI to convert it to ONNX format), creates a gRPC service API to create either text or image embeddings using the Fashion-Clip model, runs inference for the given text or image, and returns the output vectors as a gRPC response.
-
-## Installation
-
-1. Install Rust and Cargo: https://www.rust-lang.org/tools/install
-2. Clone the repository: `git clone https://github.com/yaman/fashion-clip-rs.git`
-3. Change into the project directory: `cd fashion-clip-rs`
-4. Build the project: `cargo build`
-
-## Converting the Fashion-Clip Model to ONNX Format
-
-To use the Fashion-Clip model and clip-ViT-B-32-multilingual-v1 with fashion-clip-rs, you need to convert it to ONNX format using the Hugging Face Optimum tool.
-
-1. install latest optimum cli:
-```bash
-python -m pip install git+https://github.com/huggingface/optimum.git
-```
-2. For clip-ViT-B-32-multilingual-v1: 
-```bash
-optimum-cli export onnx -m sentence-transformers/clip-ViT-B-32-multilingual-v1 --task feature-extraction models/text 
-```
-3. For fashion-clip:
-```bash
-optimum-cli export onnx -m patrickjohncyh/fashion-clip --task feature-extraction models/image
-```
-
-**Note**: Accurate exporting of **clip-ViT-B-32-multilingual-v1** depends on latest version of optimum. So, do not skip first step even if you have already optimum installed
 
 ## gRPC Service
 
@@ -183,9 +190,12 @@ message EncoderResponse {
 4. Push to the branch: `git push origin feature-name`
 5. Submit a pull request
 
-## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## 📜 License
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
+## 📞 Contact
+For questions or feedback, please reach out to [yaman](https://github.com/yaman).
 
 ## Author
 

@@ -1,10 +1,9 @@
 [package]
 name = "fashion-clip-rs"
-version = "0.1.0"
+version = "0.1.2"
 edition = "2021"
 authors = ["canavar"]
 description = "A complete(grpc service and lib) Rust inference with multilingual embedding support. This version leverages the power of Rust for both GRPC services and as a standalone library, providing highly efficient text and image embeddings for fashion."
-license = "MIT"
 readme = "README.md"
 license-file = "LICENSE.md"
 repository = "https://github.com/yaman/fashion-clip-rs"
