@@ -52,9 +52,9 @@ Ensure you have the following installed:
 
 To use the Fashion-Clip model and clip-ViT-B-32-multilingual-v1 with fashion-clip-rs, you need to convert it to ONNX format using the Hugging Face Optimum tool.
 
-1. install latest optimum cli:
+1. install latest optimum cli from source:
 ```bash
-python -m pip install git+https://github.com/huggingface/optimum.git
+python -m pip install optimum[onnxruntime]@git+https://github.com/huggingface/optimum.git
 ```
 2. For clip-ViT-B-32-multilingual-v1: 
 ```bash
