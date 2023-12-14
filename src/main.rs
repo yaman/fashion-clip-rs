@@ -36,7 +36,8 @@ pub async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>
         .accept_compressed(CompressionEncoding::Gzip)
         .send_compressed(CompressionEncoding::Gzip);
 
-    let grpc_addr = (config.service.host + ":" + &config.service.port.to_string())
+    let service_config = config.service.clone().unwrap();
+    let grpc_addr = (service_config.host + ":" + &service_config.port.to_string())
         .parse()
         .unwrap();
 
@@ -47,8 +48,8 @@ pub async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>
         .await; // start grpc service
 
     Server::builder()
-        .http2_keepalive_interval(Some(Duration::from_secs(config.service.http2_keepalive_interval.into())))
-        .http2_keepalive_timeout(Some(Duration::from_secs(config.service.http2_keepalive_timeout.into())))
+        .http2_keepalive_interval(Some(Duration::from_secs(service_config.http2_keepalive_interval.into())))
+        .http2_keepalive_timeout(Some(Duration::from_secs(service_config.http2_keepalive_timeout.into())))
         .add_service(health_service)
         .add_service(server)
         

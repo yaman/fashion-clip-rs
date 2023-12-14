@@ -18,7 +18,7 @@ fn test_given_encode_when_sentence_then_return_embedding() {
         Ok(result) => result,
         Err(e) => panic!("Failed to encode sentence: {}", e),
     };
-    let file_content = fs::read_to_string(config.test.text_embeddings).unwrap();
+    let file_content = fs::read_to_string(config.test.unwrap().text_embeddings).unwrap();
     let expected: Vec<f32> = from_str(&file_content).unwrap();
 
     for (test, response) in expected.iter().zip(actual.iter()) {
@@ -58,13 +58,14 @@ fn image_to_bytes<P: AsRef<Path>>(path: P) -> std::io::Result<Vec<u8>> {
 #[test]
 fn test_given_encode_when_image_then_return_embedding() {
     let (embed, config) = setup_image_model();
-    let image_bytes = &image_to_bytes(&config.test.image).unwrap();
+    let config_test = config.test.unwrap();
+    let image_bytes = &image_to_bytes(&config_test.image).unwrap();
     println!("image bytes: {:?}", image_bytes.len());
     let actual = match embed.encode(image_bytes.clone() as Vec<u8>) {
         Ok(result) => result,
         Err(e) => panic!("Failed to encode sentence: {}", e),
     };
-    let file_content = fs::read_to_string(config.test.image_embeddings).unwrap();
+    let file_content = fs::read_to_string(config_test.image_embeddings).unwrap();
     let expected: Vec<f32> = from_str(&file_content).unwrap();
 
     for (test, response) in expected.iter().zip(actual.iter()) {

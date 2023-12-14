@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Service {
     pub host: String,
     pub port: u16,
@@ -10,24 +10,24 @@ pub struct Service {
     pub http2_keepalive_timeout: u16
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct ModelText {
     pub name: String,
     pub cache_folder: String,
     pub onnx_folder: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct ModelImage {
     pub name: String,
     pub cache_folder: String,
     pub onnx_folder: String,
-    pub pretrained_model_folder: String,
-    pub image_width: usize,
-    pub image_height: usize,
+    pub pretrained_model_folder: Option<String>,
+    pub image_width: Option<usize>,
+    pub image_height: Option<usize>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Test {
     pub text_embeddings: String,
     pub image_embeddings: String,
@@ -36,14 +36,14 @@ pub struct Test {
     pub image_url: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Config {
-    pub service: Service,
+    pub service: Option<Service>,
     pub model: Model,
-    pub test: Test,
+    pub test: Option<Test>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Model {
     pub text: ModelText,
     pub image: ModelImage,

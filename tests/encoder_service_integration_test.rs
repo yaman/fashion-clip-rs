@@ -6,6 +6,7 @@ mod tests {
     }
 
     use approx::assert_abs_diff_eq;
+    use cargo_tarpaulin::config;
     use fashion_clip_rs::config::Config;
     use encoder::encoder_client::EncoderClient;
     use encoder::EncodeTextRequest;
@@ -26,7 +27,9 @@ mod tests {
 
     async fn setup_service_client() -> (Config, EncoderClient<Channel>) {
         let config = Config::new("config.toml").unwrap();
-        let url = config.service.url.clone().to_string();
+        let config = config.clone();
+        let config_service = config.service.clone().unwrap();
+        let url = config_service.url.clone().to_string();
         let leaked_url = Box::leak(url.into_boxed_str());
         let channel = Channel::from_static(leaked_url).connect().await.unwrap();
         let client = EncoderClient::new(channel);
@@ -37,13 +40,15 @@ mod tests {
     async fn test_given_encode_text_request_when_sent_valid_text_then_return_embedding() -> Result<(), Box<dyn std::error::Error>> {
         let (config, mut client) = setup_service_client().await;
 
+        let config_test = config.test.unwrap();
+
         let request = tonic::Request::new(EncodeTextRequest {
-            text: config.test.text_example.to_string(),
+            text: config_test.text_example.to_string(),
         });
 
         let response = client.encode_text(request).await?.into_inner();
 
-        let mut test_file = File::open(config.test.text_embeddings)?;
+        let mut test_file = File::open(config_test.text_embeddings)?;
         let mut test_contents = String::new();
         test_file.read_to_string(&mut test_contents)?;
 
@@ -86,7 +91,7 @@ mod tests {
 
         let response = client.encode_image(request).await?.into_inner();
 
-        let mut test_file = File::open(config.test.image_embeddings)?;
+        let mut test_file = File::open(config.test.unwrap().image_embeddings)?;
         let mut test_contents = String::new();
         test_file.read_to_string(&mut test_contents)?;
 
