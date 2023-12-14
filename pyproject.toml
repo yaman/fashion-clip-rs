@@ -15,12 +15,10 @@ sentence-transformers = "^2.2.2"
 toml = "^0.10.2"
 tokenizer = "^3.4.3"
 transformers = "^4.35.2"
-onnx = "^1.15.0"
 six = "^1.16.0"
 torchvision = "^0.16.1"
 pillow = "^10.1.0"
 rembg = "^2.0.52"
-optimum = { git = "https://github.com/huggingface/optimum.git", extras = ["onnxruntime"] }
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.27.1"
