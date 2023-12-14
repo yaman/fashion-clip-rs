@@ -1,4 +1,4 @@
-DOCKER_IMAGE := "embed-rs"
+DOCKER_IMAGE := "fashion-clip-rs"
 
 build:
     cargo build --release
