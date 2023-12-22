@@ -90,7 +90,7 @@ jobs:
       run: ~/.cargo/bin/just unit-test
 
   container_push:
-    needs: test
+    needs: [test, build]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
