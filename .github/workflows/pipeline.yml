@@ -98,9 +98,6 @@ jobs:
       with:
         path: target
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-    
-    - name: Create tar file from target directory
-      run: tar -czf target.tar.gz -C target .
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v1
@@ -115,7 +112,7 @@ jobs:
         file: ./Dockerfile
         push: true
         tags: yaman/fashion-clip-rs:latest
-        load: target.tar.gz
+        load: true
 
   publish2crates_io:
     needs: [test, build]
