@@ -37,16 +37,18 @@ Ensure you have the following installed:
 - [ghz](https://ghz.sh/) for GRPC performance testing
 - [Tarpaulin](https://crates.io/crates/cargo-tarpaulin) for coverage reporting
 - python >3.11 to export onnx model using hf optimum
+- [act](https://github.com/nektos/act)(optional for testing github actions on local)
 
 ## Installation
 
 1. Install Rust and Cargo: https://www.rust-lang.org/tools/install
 2. Install [Just](https://github.com/casey/just)
 3. Install [Tarpaulin](https://crates.io/crates/cargo-tarpaulin) *Optional: for coverage reports*
-4. Install [ghz](https://ghz.sh/) *Optional: for performance testing*
-5. Clone the repository: `git clone https://github.com/yaman/fashion-clip-rs.git`
-6. Change into the project directory: `cd fashion-clip-rs`
-7. Build the project: `just build`
+4. Install [act](https://github.com/nektos/act) *Optional for testing github actions on local*
+5. Install [ghz](https://ghz.sh/) *Optional: for performance testing*
+6. Clone the repository: `git clone https://github.com/yaman/fashion-clip-rs.git`
+7. Change into the project directory: `cd fashion-clip-rs`
+8. Build the project: `just build`
 
 ## Model Export
 

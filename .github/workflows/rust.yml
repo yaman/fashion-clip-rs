@@ -10,51 +10,103 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
-
+  download_models:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
-    - name: install protoc
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y protobuf-compiler
     - name: Set up Python 3.11
       uses: actions/setup-python@v2
       with:
         python-version: '3.11'
-    - name: Install Poetry
-      run: |
-        curl -sSL https://install.python-poetry.org | python3 -
-    - name: install optimum-cli
-      run: python -m pip install optimum[onnxruntime]@git+https://github.com/huggingface/optimum.git
-    - name: Install dependencies
-      run: |
-        echo "/root/.local/bin" >> $GITHUB_PATH
-        poetry install
-        python -m pip install sentence_transformers
+    
     - name: install just
       run: |
         curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to ~/.cargo/bin
-    - name: Build
-      run: just build
+   
     - name: download models
-      run: just download-models
+      run: ~/.cargo/bin/just download-models
+    
+    - name: Cache models directory
+      uses: actions/cache@v2
+      with:
+        path: models
+        key: ${{ runner.os }}-models-${{ hashFiles('**/pyproject.toml') }}
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: dtolnay/rust-toolchain@stable
+    - name: install protoc
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y protobuf-compiler
+    
+    - name: install just
+      run: |
+        curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to ~/.cargo/bin
+    - name: Cache just command
+      uses: actions/cache@v2
+      with:
+        path: ~/.cargo/bin
+        key: ${{ runner.os }}-just-${{ hashFiles('**/justfile') }}
+    - name: Cache target directory
+      uses: actions/cache@v2
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Build
+      run: ~/.cargo/bin/just build
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: dtolnay/rust-toolchain@stable
+    - name: Restore target directory
+      uses: actions/cache@v2
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+    - name: Restore models directory
+      uses: actions/cache@v2
+      with:
+        path: models
+        key: ${{ runner.os }}-models-${{ hashFiles('**/pyproject.toml') }}
+    - name: Restore just command
+      uses: actions/cache@v2
+      with:
+        path: ~/.cargo/bin
+        key: ${{ runner.os }}-just-${{ hashFiles('**/justfile') }}
+    - name: install protoc
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y protobuf-compiler
     - name: Run tests
-      run: just unit-test
+      run: ~/.cargo/bin/just unit-test
 
   publish:
     needs: build
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: dtolnay/rust-toolchain@stable
     - name: install protoc
       run: |
         sudo apt-get update
         sudo apt-get install -y protobuf-compiler
     - name: install cargo release
       run: cargo install cargo-release
+
+    - name: Restore target directory
+      uses: actions/cache@v2
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
     - name: Publish to crates.io dry run
       run: |

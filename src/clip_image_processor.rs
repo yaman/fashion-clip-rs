@@ -4,6 +4,7 @@ use image::io::Reader as ImageReader;
 use image::{imageops::FilterType, ImageBuffer, Rgb};
 use ndarray::{Array4, ArrayBase, CowArray, CowRepr, Dim};
 
+#[allow(dead_code)]
 pub struct CLIPImageProcessor {
     do_resize: bool,
     size: Option<(usize, usize)>, // Represents 'shortest_edge' or (height, width)
@@ -18,6 +19,7 @@ pub struct CLIPImageProcessor {
     do_convert_rgb: bool,
 }
 
+#[allow(dead_code)]
 impl CLIPImageProcessor {
     pub fn new() -> CLIPImageProcessor {
         CLIPImageProcessor {
