@@ -62,7 +62,7 @@ jobs:
       run: ~/.cargo/bin/just build
 
   test:
-    needs: build
+    needs: [build, download_models]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
