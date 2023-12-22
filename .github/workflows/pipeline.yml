@@ -94,6 +94,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    
+    - name: Restore target directory
+      uses: actions/cache@v2
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
     - name: Log in to Docker Hub
       uses: docker/login-action@v1
       with:
@@ -108,7 +115,7 @@ jobs:
         push: true
         tags: yaman/fashion-clip-rs:latest
 
-  publish:
+  publish2crates_io:
     needs: [test, build]
     runs-on: ubuntu-latest
     steps:
