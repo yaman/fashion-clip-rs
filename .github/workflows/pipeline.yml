@@ -168,7 +168,7 @@ jobs:
         curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
     - name: install cargo release
-      run: cargo binstall cargo-release --locked -y
+      run: cargo binstall cargo-smart-release --locked -y
 
     - name: Restore target directory
       uses: actions/cache@v2
@@ -191,7 +191,7 @@ jobs:
         cargo login ${{ secrets.CRATES_IO_TOKEN }}
         git config --global user.email "abdulkadiryaman@gmail.com"
         git config --global user.name "yaman"
-        yes | cargo release patch --execute
+        yes | cargo smart-release --execute
 
 
  
