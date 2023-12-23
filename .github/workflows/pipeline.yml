@@ -191,7 +191,7 @@ jobs:
         cargo login ${{ secrets.CRATES_IO_TOKEN }}
         git config --global user.email "abdulkadiryaman@gmail.com"
         git config --global user.name "yaman"
-        yes | cargo smart-release --execute
+        yes | cargo smart-release --update-crates-index --bump patch --execute
 
 
  
