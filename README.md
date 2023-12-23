@@ -54,9 +54,9 @@ Ensure you have the following installed:
 
 To use the Fashion-Clip model and clip-ViT-B-32-multilingual-v1 with fashion-clip-rs, you need to convert it to ONNX format using the Hugging Face Optimum tool.
 
-1. install latest optimum cli from source:
+1. install latest optimum cli from source with transformers and sentence-transformers:
 ```bash
-python -m pip install optimum[onnxruntime]@git+https://github.com/huggingface/optimum.git
+python -m pip install optimum[onnxruntime]@git+https://github.com/huggingface/optimum.git transformers sentence-transformers
 ```
 2. For clip-ViT-B-32-multilingual-v1: 
 ```bash
@@ -111,6 +111,11 @@ just coverage
 just perf-test-for-text
 ```
 
+## 🐳 Run with Docker
+Github action pushes to **yaman/fashion-clip-rs** docker hub repo everytime a change on necessary files happens. Linux/amd64 and Linux/arm64 images will be created. You can directly run image via:
+```bash
+docker run -v ./models:/models -v ./config.toml:/config.toml yaman/fashion-clip-rs:latest
+```
 
 ## 📚 Usage as a library
 fashion-clip-rs can also be used as a library in Rust projects.
