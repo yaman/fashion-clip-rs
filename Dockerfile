@@ -1,9 +1,13 @@
+FROM rust:slim-buster AS builder
+
+COPY . .
+RUN cargo build --release -q
+
 FROM ubuntu:latest
 
-RUN ls -althr
-COPY ./target/embed-rs /usr/local/bin/embed-rs
-COPY ./target/release/libonnxruntime.so /lib/libonnxruntime.so
-COPY ./config.toml /config.toml
+COPY --from=builder ./config.toml /config.toml
+COPY --from=builder ./target/embed-rs /usr/local/bin/embed-rs
+COPY --from=builder ./target/release/libonnxruntime.so /lib/libonnxruntime.so
 
 ENV ORT_DYLIB_PATH /lib/libonnxruntime.so
 
