@@ -43,6 +43,8 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    outputs:
+      skip_job: ${{ steps.check_files.outputs.skip_job }}
     steps:
     - uses: actions/checkout@v3
     - name: Notify Discord
@@ -52,6 +54,13 @@ jobs:
         color: '#ff00aa'
         details: '${{ github.job }} started...'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+    - name: Check for changes in relevant files
+      id: check_files
+      run: |
+        if ! git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -E '^(src/|tests/|pb/|Dockerfile|config.toml|Cargo.toml)'; then
+          echo "No changes in relevant files. Skipping job."
+          echo "::set-output name=skip_job::true"
+        fi
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
@@ -160,6 +169,7 @@ jobs:
   container_push:
     needs: [test,build]
     runs-on: ubuntu-latest
+    if: needs.build.outputs.skip_job != 'true'
     steps:
     - uses: actions/checkout@v3
     - name: Notify Discord
@@ -203,6 +213,7 @@ jobs:
   publish2crates_io:
     needs: [test, build]
     runs-on: ubuntu-latest
+    if: needs.build.outputs.skip_job != 'true'
     steps:
     - uses: actions/checkout@v3
     - name: Notify Discord
