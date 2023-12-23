@@ -29,9 +29,9 @@ jobs:
   download_models:
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         runner: [self-hosted, ubuntu-latest]
-        max-parallel: 1
     runs-on: ${{ matrix.runner }}
     container:
       image: yaman/optimum-onnx:latest
