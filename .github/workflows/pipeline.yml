@@ -19,8 +19,8 @@ jobs:
     - name: Notify Discord
       uses: rjstone/discord-webhook-notify@v1
       with:
-        severity: info
-        details: '${{ vars.JOB_NAME }} started...'
+        severity: warn
+        details: '${{ github.job }} started...'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
     - name: download models
       run: |
@@ -37,7 +37,7 @@ jobs:
       uses: rjstone/discord-webhook-notify@v1
       with:
         severity: ${{ job.status == 'success' && 'info' || 'error' }}
-        details: '${{ vars.JOB_NAME }} completed with status ${{ job.status }}'
+        details: '${{ github.job }} completed with status ${{ job.status }}'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
   build:
@@ -47,8 +47,8 @@ jobs:
     - name: Notify Discord
       uses: rjstone/discord-webhook-notify@v1
       with:
-        severity: info
-        details: '${{ vars.JOB_NAME }} started...'
+        severity: warn
+        details: '${{ github.job }} started...'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
@@ -95,7 +95,7 @@ jobs:
       uses: rjstone/discord-webhook-notify@v1
       with:
         severity: ${{ job.status == 'success' && 'info' || 'error' }}
-        details: '${{ vars.JOB_NAME }} completed with status ${{ job.status }}'
+        details: '${{ github.job }} completed with status ${{ job.status }}'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
   test:
@@ -106,8 +106,8 @@ jobs:
     - name: Notify Discord
       uses: rjstone/discord-webhook-notify@v1
       with:
-        severity: info
-        details: '${{ vars.JOB_NAME }} started...'
+        severity: warn
+        details: '${{ github.job }} started...'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
@@ -151,7 +151,7 @@ jobs:
       uses: rjstone/discord-webhook-notify@v1
       with:
         severity: ${{ job.status == 'success' && 'info' || 'error' }}
-        details: '${{ vars.JOB_NAME }} completed with status ${{ job.status }}'
+        details: '${{ github.job }} completed with status ${{ job.status }}'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
   container_push:
@@ -162,8 +162,8 @@ jobs:
     - name: Notify Discord
       uses: rjstone/discord-webhook-notify@v1
       with:
-        severity: info
-        details: '${{ vars.JOB_NAME }} started...'
+        severity: warn
+        details: '${{ github.job }} started...'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
     - name: Log in to Docker Hub
       uses: docker/login-action@v1
@@ -193,7 +193,7 @@ jobs:
       uses: rjstone/discord-webhook-notify@v1
       with:
         severity: ${{ job.status == 'success' && 'info' || 'error' }}
-        details: '${{ vars.JOB_NAME }} completed with status ${{ job.status }}'
+        details: '${{ github.job }} completed with status ${{ job.status }}'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
   publish2crates_io:
@@ -204,8 +204,8 @@ jobs:
     - name: Notify Discord
       uses: rjstone/discord-webhook-notify@v1
       with:
-        severity: info
-        details: '${{ vars.JOB_NAME }} started...'
+        severity: warn
+        details: '${{ github.job }} started...'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
@@ -243,6 +243,6 @@ jobs:
       uses: rjstone/discord-webhook-notify@v1
       with:
         severity: ${{ job.status == 'success' && 'info' || 'error' }}
-        details: '${{ vars.JOB_NAME }} completed with status ${{ job.status }}'
+        details: '${{ github.job }} completed with status ${{ job.status }}'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
       
