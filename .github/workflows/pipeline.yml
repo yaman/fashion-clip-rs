@@ -16,6 +16,7 @@ jobs:
       image: yaman/optimum-onnx:latest
 
     steps:
+    - uses: ./.github/workflows/discord-notification.yml
     - uses: actions/checkout@v3
     - name: download models
       run: |
@@ -31,13 +32,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Discord notification
-      env:
-        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-      uses: Ilshidur/action-discord@master
-      with:
-        args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has new changes, starting to build.'
-
+    - uses: ./.github/workflows/discord-notification.yml
     - uses: actions/checkout@v3
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
@@ -80,14 +75,11 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-cargo-
 
-    - name: Print hash of Cargo.lock
-      run: echo $(sha256sum Cargo.lock)
-
-
   test:
     needs: [build, download_models]
     runs-on: ubuntu-latest
     steps:
+    - uses: ./.github/workflows/discord-notification.yml
     - uses: actions/checkout@v3
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
@@ -131,6 +123,7 @@ jobs:
     needs: [test,build]
     runs-on: ubuntu-latest
     steps:
+    - uses: ./.github/workflows/discord-notification.yml
     - uses: actions/checkout@v3
     - name: Log in to Docker Hub
       uses: docker/login-action@v1
@@ -155,17 +148,12 @@ jobs:
         tags: |
           yaman/fashion-clip-rs:latest
           yaman/fashion-clip-rs:${{ github.run_number }}
-    - name: Discord notification
-      env:
-        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-      uses: Ilshidur/action-discord@master
-      with:
-        args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been pushed to Docker Hub.'
 
   publish2crates_io:
     needs: [test, build]
     runs-on: ubuntu-latest
     steps:
+    - uses: ./.github/workflows/discord-notification.yml
     - uses: actions/checkout@v3
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
@@ -197,10 +185,3 @@ jobs:
         git config --global user.email "abdulkadiryaman@gmail.com"
         git config --global user.name "yaman"
         cargo smart-release --update-crates-index --bump patch --execute
-
-    - name: Discord notification
-      env:
-        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-      uses: Ilshidur/action-discord@master
-      with:
-        args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been released to crates.io'
