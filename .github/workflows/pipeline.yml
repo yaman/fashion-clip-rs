@@ -38,7 +38,7 @@ jobs:
       uses: rjstone/discord-webhook-notify@v1
       with:
         severity: ${{ job.status == 'success' && 'info' || 'error' }}
-        details: '${{ github.job }} completed with status ${{ job.status }}'
+        details: '**${{ github.job }}** completed with status *${{ job.status }}*!'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
   build:
@@ -106,7 +106,7 @@ jobs:
       uses: rjstone/discord-webhook-notify@v1
       with:
         severity: ${{ job.status == 'success' && 'info' || 'error' }}
-        details: '${{ github.job }} completed with status ${{ job.status }}'
+        details: '**${{ github.job }}** completed with status *${{ job.status }}*!'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
   test:
@@ -163,7 +163,7 @@ jobs:
       uses: rjstone/discord-webhook-notify@v1
       with:
         severity: ${{ job.status == 'success' && 'info' || 'error' }}
-        details: '${{ github.job }} completed with status ${{ job.status }}'
+        details: '**${{ github.job }}** completed with status *${{ job.status }}*!'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
   container_push:
@@ -207,7 +207,7 @@ jobs:
       uses: rjstone/discord-webhook-notify@v1
       with:
         severity: ${{ job.status == 'success' && 'info' || 'error' }}
-        details: '${{ github.job }} completed with status ${{ job.status }}'
+        details: '**${{ github.job }}** completed with status *${{ job.status }}*!'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
   publish2crates_io:
@@ -259,6 +259,30 @@ jobs:
       uses: rjstone/discord-webhook-notify@v1
       with:
         severity: ${{ job.status == 'success' && 'info' || 'error' }}
-        details: '${{ github.job }} completed with status ${{ job.status }}'
+        details: '**${{ github.job }}** completed with status *${{ job.status }}*!'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
-      
+
+  NotifySkipped:
+    needs: [build, download_models, test]
+    runs-on: ubuntu-latest
+    if: needs.build.outputs.skip_job == 'true'
+    steps:
+    - name: Notify Discord
+      uses: rjstone/discord-webhook-notify@v1
+      with:
+        severity: info
+        color: '#ff00aa'
+        details: '**${{ github.job }}** skipped... COMPLETED WORKFLOW!'
+        webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+
+  NotifySuccess:
+    needs: [build, download_models, test, container_push, publish2crates_io]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Notify Discord
+      uses: rjstone/discord-webhook-notify@v1
+      with:
+        severity: info
+        color: '#30D5C8'
+        details: '**${{github.workflow}} completed successfully!**'
+        webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
