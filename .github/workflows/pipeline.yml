@@ -17,10 +17,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: install nodejs
-      run: |
-        export DEBIAN_FRONTEND=noninteractive
-        apt-get update && apt-get install nodejs -y
     - name: download models
       run: |
         optimum-cli export onnx -m sentence-transformers/clip-ViT-B-32-multilingual-v1 --task feature-extraction models/textqq
