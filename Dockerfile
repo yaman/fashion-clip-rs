@@ -1,7 +1,7 @@
 FROM rust:slim-buster AS builder
 
 COPY . .
-RUN cargo build --release -q
+RUN cargo build --release
 
 FROM ubuntu:latest
 
