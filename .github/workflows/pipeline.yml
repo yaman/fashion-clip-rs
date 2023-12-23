@@ -91,13 +91,6 @@ jobs:
       with:
         toolchain: stable
         override: true
-    - name: Restore target directory
-      uses: actions/cache@v2
-      with:
-        path: target
-        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-cargo-
 
     - name: Restore models directory
       uses: actions/cache@v2
@@ -121,7 +114,7 @@ jobs:
         sudo apt-get install -y protobuf-compiler
     - name: install sccache
       run: |
-        cargo install sccache --locked
+        cargo binstall sccache --locked
 
     - name: Run sccache-cache
       uses: mozilla-actions/sccache-action@v0.0.3
@@ -178,7 +171,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y protobuf-compiler
     - name: install cargo release
-      run: cargo install cargo-release
+      run: cargo binstall cargo-release
 
     - name: Restore target directory
       uses: actions/cache@v2
@@ -193,7 +186,7 @@ jobs:
 
     - name: install sccache
       run: |
-        cargo install sccache --locked
+        cargo binstall sccache --locked
     - name: sccache environment for rust
       run: |
         echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
