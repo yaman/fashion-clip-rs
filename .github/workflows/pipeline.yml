@@ -26,13 +26,22 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  check-model-cache:
+    runs-on: self-hosted
+    outputs:
+      cache-hit: ${{ steps.cache-check.outputs.cache-hit }}
+    steps:
+    - name: Cache models directory
+      id: cache-check
+      uses: actions/cache@v2
+      with:
+        path: models
+        key: ${{ runner.os }}-models-${{ hashFiles('**/pyproject.toml') }}
+
   download_models:
-    strategy:
-      fail-fast: false
-      max-parallel: 1
-      matrix:
-        runner: [self-hosted, ubuntu-latest]
-    runs-on: ${{ matrix.runner }}
+    runs-on: self-hosted
+    needs: check-model-cache
+    if: needs.check-model-cache.outputs.cache-hit != 'true'
     container:
       image: yaman/optimum-onnx:latest
     steps:
