@@ -1,5 +1,9 @@
 name: 'Discord Notification'
 description: 'Send notifications to Discord'
+inputs:
+  webhookUrl:
+    description: 'Discord webhook URL'
+    required: true
 runs:
   using: 'composite'
   steps:
@@ -8,7 +12,7 @@ runs:
       with:
         severity: info
         details: Started...
-        webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+        webhookUrl: ${{ inputs.webhookUrl }}
 
     - name: Notify Discord success
       if: success()
@@ -16,7 +20,7 @@ runs:
       with:
         severity: info
         details: Success!
-        webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+        webhookUrl: ${{ inputs.webhookUrl }}
 
     - name: Notify Discord failure
       if: failure()
@@ -24,7 +28,7 @@ runs:
       with:
         severity: error
         details: Failed!
-        webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+        webhookUrl: ${{ inputs.webhookUrl }}
 
     - name: Notify Discord cancelled
       if: cancelled()
@@ -32,5 +36,6 @@ runs:
       with:
         severity: warn
         details: Cancelled!
-        webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+        webhookUrl: ${{ inputs.webhookUrl }}
+
 

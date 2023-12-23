@@ -16,7 +16,10 @@ jobs:
       image: yaman/optimum-onnx:latest
     steps:
     - uses: actions/checkout@v3
-    - uses: ./.github/actions/notify-discord
+    - name: Notify
+      uses: ./.github/actions/notify-discord
+      with:
+        webhook_url: ${{ secrets.DISCORD_WEBHOOK }}
     - name: download models
       run: |
         optimum-cli export onnx -m sentence-transformers/clip-ViT-B-32-multilingual-v1 --task feature-extraction models/textqq
@@ -32,7 +35,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: ./.github/actions/notify-discord
+    - name: Notify
+      uses: ./.github/actions/notify-discord
+      with:
+        webhook_url: ${{ secrets.DISCORD_WEBHOOK }}
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
@@ -79,7 +85,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: ./.github/actions/notify-discord
+    - name: Notify
+      uses: ./.github/actions/notify-discord
+      with:
+        webhook_url: ${{ secrets.DISCORD_WEBHOOK }}
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
@@ -123,7 +132,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: ./.github/actions/notify-discord
+    - name: Notify
+      uses: ./.github/actions/notify-discord
+      with:
+        webhook_url: ${{ secrets.DISCORD_WEBHOOK }}
     - name: Log in to Docker Hub
       uses: docker/login-action@v1
       with:
@@ -153,7 +165,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: ./.github/actions/notify-discord
+    - name: Notify
+      uses: ./.github/actions/notify-discord
+      with:
+        webhook_url: ${{ secrets.DISCORD_WEBHOOK }}
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
