@@ -252,7 +252,7 @@ jobs:
         cargo login ${{ secrets.CRATES_IO_TOKEN }}
         git config --global user.email "abdulkadiryaman@gmail.com"
         git config --global user.name "yaman"
-        cargo release patch --execute
+        yes | cargo release patch --execute
 
     - name: Notify Discord
       if: always()
