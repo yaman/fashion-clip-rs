@@ -119,6 +119,17 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y protobuf-compiler
+    - name: install sccache
+      run: |
+        cargo install sccache --locked
+
+    - name: Run sccache-cache
+      uses: mozilla-actions/sccache-action@v0.0.3
+
+    - name: sccache environment for rust
+      run: |
+        echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
+        echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
 
     - name: Run tests
       run: ~/.cargo/bin/just unit-test
@@ -176,6 +187,17 @@ jobs:
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
         restore-keys: |
           ${{ runner.os }}-cargo-
+
+    - name: Run sccache-cache
+      uses: mozilla-actions/sccache-action@v0.0.3
+
+    - name: install sccache
+      run: |
+        cargo install sccache --locked
+    - name: sccache environment for rust
+      run: |
+        echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
+        echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
 
     - name: Publish to crates.io dry run
       run: |
