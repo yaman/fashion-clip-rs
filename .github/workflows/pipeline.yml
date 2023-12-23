@@ -99,12 +99,15 @@ jobs:
         password: ${{ secrets.GH_WORKFLOW_TOKEN }}
 
     - name: Build and push
-      uses: docker/build-push-action@v5.1.0
-      with:
-        context: .
-        file: ./Dockerfile
-        push: true
-        tags: yaman/fashion-clip-rs:latest
+      run: |
+        docker buildx build --platform linux/amd64,linux/arm64 -t yaman/fashion-clip-rs:latest --push .
+    # - name: Build and push
+    #   uses: docker/build-push-action@v5.1.0
+    #   with:
+    #     context: .
+    #     file: ./Dockerfile
+    #     push: true
+    #     tags: yaman/fashion-clip-rs:latest
 
   publish2crates_io:
     needs: [test, build]
