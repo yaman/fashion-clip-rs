@@ -28,13 +28,10 @@ env:
 jobs:
   download_models:
     strategy:
+      fail-fast: false
       matrix:
         runner: [self-hosted, ubuntu-latest]
-        include:
-          - runner: self-hosted
-            fail-fast: false
-          - runner: ubuntu-latest
-            fail-fast: true
+        max-parallel: 1
     runs-on: ${{ matrix.runner }}
     container:
       image: yaman/optimum-onnx:latest
@@ -209,7 +206,7 @@ jobs:
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-      
+
     - name: Build and push
       uses: docker/build-push-action@v5.1.0
       with:
