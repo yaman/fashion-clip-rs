@@ -178,20 +178,9 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-cargo-
 
-    - name: Run sccache-cache
-      uses: mozilla-actions/sccache-action@v0.0.3
-
-    - name: sccache environment for rust
-      run: |
-        echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
-        echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
-
-    - name: Publish to crates.io dry run
-      run: |
-        cargo login ${{ secrets.CRATES_IO_TOKEN }}
-        git config --global user.email "abdulkadiryaman@gmail.com"
-        git config --global user.name "yaman"
-        yes | cargo smart-release --update-crates-index --bump patch --execute
+    - uses: katyo/publish-crates@v2
+      with:
+          registry-token: ${{ secrets.CRATES_IO_TOKEN }}
 
 
  
