@@ -178,7 +178,12 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-cargo-
 
-    - uses: katyo/publish-crates@v2
-      with:
-          registry-token: ${{ secrets.CRATES_IO_TOKEN }}
+    - name: Publish to crates.io
+      run: |
+        cargo login ${{ secrets.CRATES_IO_TOKEN }}
+        git config --global user.email "abdulkadiryaman@gmail.com"
+        git config --global user.name "yaman"
+        cargo smart-release --update-crates-index --bump patch --execute
+
+
  
