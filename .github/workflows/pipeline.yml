@@ -11,7 +11,7 @@ env:
 
 jobs:
   download_models:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     container:
       image: yaman/optimum-onnx:latest
 
@@ -30,26 +30,44 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
-    - uses: dtolnay/rust-toolchain@stable
+    - name: Install Rust toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
     - name: install protoc
       run: |
         sudo apt-get update
         sudo apt-get install -y protobuf-compiler
-    
-    - name: install just
+    - name: install cargo binstall
       run: |
-        curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to ~/.cargo/bin
+        curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+    - name: install just
+      run: cargo binstall just --locked -y
+
     - name: Cache just command
       uses: actions/cache@v2
       with:
         path: ~/.cargo/bin
         key: ${{ runner.os }}-just-${{ hashFiles('**/justfile') }}
 
+    - name: install sccache
+      run: |
+        cargo binstall sccache --locked -y
+
+    - name: Run sccache-cache
+      uses: mozilla-actions/sccache-action@v0.0.3
+
+    - name: sccache environment for rust
+      run: |
+        echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
+        echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
+
     - name: Build
-      run: ~/.cargo/bin/just build
+      run: just build
 
     - name: Cache target directory
       uses: actions/cache@v2
@@ -68,7 +86,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: dtolnay/rust-toolchain@stable
+    - name: Install Rust toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
     - name: Restore target directory
       uses: actions/cache@v2
       with:
@@ -135,7 +157,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: dtolnay/rust-toolchain@stable
+    - name: Install Rust toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
     - name: install protoc
       run: |
         sudo apt-get update
