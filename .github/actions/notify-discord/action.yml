@@ -1,0 +1,36 @@
+name: 'Discord Notification'
+description: 'Send notifications to Discord'
+runs:
+  using: 'composite'
+  steps:
+    - name: Notify Discord started
+      uses: rjstone/discord-webhook-notify@v1
+      with:
+        severity: info
+        details: Started...
+        webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+
+    - name: Notify Discord success
+      if: success()
+      uses: rjstone/discord-webhook-notify@v1
+      with:
+        severity: info
+        details: Success!
+        webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+
+    - name: Notify Discord failure
+      if: failure()
+      uses: rjstone/discord-webhook-notify@v1
+      with:
+        severity: error
+        details: Failed!
+        webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+
+    - name: Notify Discord cancelled
+      if: cancelled()
+      uses: rjstone/discord-webhook-notify@v1
+      with:
+        severity: warn
+        details: Cancelled!
+        webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+

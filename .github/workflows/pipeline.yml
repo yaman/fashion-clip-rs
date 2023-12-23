@@ -10,14 +10,13 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  notify:
-    uses: ./.github/workflows/discord-notifications.yml
   download_models:
     runs-on: self-hosted
     container:
       image: yaman/optimum-onnx:latest
     steps:
     - uses: actions/checkout@v3
+    - uses: ./.github/actions/notify-discord
     - name: download models
       run: |
         optimum-cli export onnx -m sentence-transformers/clip-ViT-B-32-multilingual-v1 --task feature-extraction models/textqq
@@ -33,6 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: ./.github/actions/notify-discord
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
@@ -79,6 +79,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: ./.github/actions/notify-discord
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
@@ -122,6 +123,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: ./.github/actions/notify-discord
     - name: Log in to Docker Hub
       uses: docker/login-action@v1
       with:
@@ -151,6 +153,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: ./.github/actions/notify-discord
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
