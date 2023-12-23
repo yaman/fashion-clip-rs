@@ -272,7 +272,6 @@ jobs:
   NotifySuccess:
     needs: [build, download_models, test, container_push, publish2crates_io]
     runs-on: ubuntu-latest
-    if: always()
     steps:
     - name: Notify Discord
       uses: rjstone/discord-webhook-notify@v1
