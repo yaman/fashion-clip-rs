@@ -16,9 +16,11 @@ jobs:
       image: yaman/optimum-onnx:latest
     steps:
     - uses: actions/checkout@v3
-    - name: Notify
-      uses: ./.github/actions/notify-discord
+    - name: Notify Discord
+      uses: rjstone/discord-webhook-notify@v1
       with:
+        severity: info
+        details: '${{job}} started...'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
     - name: download models
       run: |
@@ -35,9 +37,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Notify
-      uses: ./.github/actions/notify-discord
+    - name: Notify Discord
+      uses: rjstone/discord-webhook-notify@v1
       with:
+        severity: info
+        details: '${{job}} started...'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
@@ -85,9 +89,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Notify
-      uses: ./.github/actions/notify-discord
+    - name: Notify Discord
+      uses: rjstone/discord-webhook-notify@v1
       with:
+        severity: info
+        details: '${{job}} started...'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
@@ -132,9 +138,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Notify
-      uses: ./.github/actions/notify-discord
+    - name: Notify Discord
+      uses: rjstone/discord-webhook-notify@v1
       with:
+        severity: info
+        details: '${{job}} started...'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
     - name: Log in to Docker Hub
       uses: docker/login-action@v1
@@ -165,9 +173,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Notify
-      uses: ./.github/actions/notify-discord
+    - name: Notify Discord
+      uses: rjstone/discord-webhook-notify@v1
       with:
+        severity: info
+        details: '${{job}} started...'
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
@@ -199,3 +209,15 @@ jobs:
         git config --global user.email "abdulkadiryaman@gmail.com"
         git config --global user.name "yaman"
         cargo smart-release --update-crates-index --bump patch --execute
+
+  notify:
+    needs: [build, download_models, test, container_push, publish2crates_io]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Discord
+        if: ${{ needs.build.outputs.result }} == 'failure' || ${{ needs.test.outputs.result }} == 'failure' || ${{ needs.container_push.outputs.result }} == 'failure' || ${{ needs.publish2crates_io.outputs.result }} == 'failure'
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          severity: error
+          details: '${{job}} completed with status ${{ job.status }}'
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
