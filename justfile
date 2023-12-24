@@ -34,6 +34,8 @@ watch-run:
     ORT_DYLIB_PATH=./target/release/libonnxruntime.so cargo watch -x run
 
 download-models:
-    python -m pip install optimum[exporters,onnxruntime]@git+https://github.com/huggingface/optimum.git transformers sentence-transformers
-    optimum-cli export onnx -m sentence-transformers/clip-ViT-B-32-multilingual-v1 --task feature-extraction models/text 
-    optimum-cli export onnx -m patrickjohncyh/fashion-clip --task feature-extraction models/image
+    python -m pip install optimum[exporters,onnxruntime]@git+https://github.com/huggingface/optimum.git transformers sentence-transformers yq
+    text_model=$(tomlq -r .text_model config.toml)
+    image_model=$(tomlq -r .image_model config.toml)
+    optimum-cli export onnx -m $text_model --task feature-extraction models/text 
+    optimum-cli export onnx -m $image_model --task feature-extraction models/image

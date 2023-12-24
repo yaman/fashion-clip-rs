@@ -36,9 +36,7 @@ jobs:
       uses: actions/cache/restore@v3
       with:
         path: models
-        key: ${{ runner.os }}-models-${{ hashFiles('**/pyproject.toml') }}
-        restore-keys: |
-          ${{ runner.os }}-models-
+        key: ${{ runner.os }}-models-${{ hashFiles('**/config.toml') }}
 
   download_models:
     runs-on: self-hosted
@@ -61,10 +59,12 @@ jobs:
         optimum-cli export onnx -m patrickjohncyh/fashion-clip --task feature-extraction models/image
     
     - name: Cache models directory
-      uses: actions/cache/save@v3
+      uses: actions/cache@v3
       with:
         path: models
-        key: ${{ runner.os }}-models-${{ hashFiles('**/pyproject.toml') }}
+        key: ${{ runner.os }}-models-${{ hashFiles('**/config.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-models-
     - name: Notify Discord
       if: always()
       uses: rjstone/discord-webhook-notify@v1
@@ -152,7 +152,7 @@ jobs:
       uses: actions/cache/restore@v3
       with:
         path: models
-        key: ${{ runner.os }}-models-${{ hashFiles('**/pyproject.toml') }}
+        key: ${{ runner.os }}-models-${{ hashFiles('**/config.toml') }}
         restore-keys: |
           ${{ runner.os }}-models-
 
