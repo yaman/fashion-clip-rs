@@ -33,7 +33,7 @@ jobs:
     steps:
     - name: Check cache for models directory
       id: cache-check
-      uses: actions/cache@v3
+      uses: actions/cache/restore@v3
       with:
         path: models
         key: ${{ runner.os }}-models-${{ hashFiles('**/config.toml') }}

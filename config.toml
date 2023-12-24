@@ -6,7 +6,6 @@ tcp_keepalive=20
 http2_keepalive_interval=10
 http2_keepalive_timeout=5
 
-
 [model.text]
 name = "sentence-transformers/clip-ViT-B-32-multilingual-v1"
 cache_folder = "models/text"
