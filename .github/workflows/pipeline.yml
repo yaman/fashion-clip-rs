@@ -59,12 +59,10 @@ jobs:
         optimum-cli export onnx -m patrickjohncyh/fashion-clip --task feature-extraction models/image
     
     - name: Cache models directory
-      uses: actions/cache@v3
+      uses: actions/cache/save@v3
       with:
         path: models
         key: ${{ runner.os }}-models-${{ hashFiles('**/config.toml') }}
-        restore-keys: |
-          ${{ runner.os }}-models-
     - name: Notify Discord
       if: always()
       uses: rjstone/discord-webhook-notify@v1
