@@ -33,7 +33,7 @@ jobs:
     steps:
     - name: Cache models directory
       id: cache-check
-      uses: actions/cache@v2
+      uses: actions/cache/restore@v3
       with:
         path: models
         key: ${{ runner.os }}-models-${{ hashFiles('**/pyproject.toml') }}
