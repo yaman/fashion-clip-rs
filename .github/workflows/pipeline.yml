@@ -59,7 +59,7 @@ jobs:
         optimum-cli export onnx -m patrickjohncyh/fashion-clip --task feature-extraction models/image
     
     - name: Cache models directory
-      uses: actions/cache@v2
+      uses: actions/cache/save@v3
       with:
         path: models
         key: ${{ runner.os }}-models-${{ hashFiles('**/pyproject.toml') }}
@@ -99,7 +99,7 @@ jobs:
       run: cargo binstall just --locked -y
 
     - name: Cache just command
-      uses: actions/cache@v2
+      uses: actions/cache/save@v3
       with:
         path: ~/.cargo/bin
         key: ${{ runner.os }}-just-${{ hashFiles('**/justfile') }}
@@ -116,12 +116,10 @@ jobs:
       run: just build
 
     - name: Cache target directory
-      uses: actions/cache@v2
+      uses: actions/cache/save@v3
       with:
         path: ./target
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-cargo-
     - name: Notify Discord
       if: always()
       uses: rjstone/discord-webhook-notify@v1
@@ -149,7 +147,7 @@ jobs:
         override: true
 
     - name: Restore models directory
-      uses: actions/cache@v2
+      uses: actions/cache/restore@v3
       with:
         path: models
         key: ${{ runner.os }}-models-${{ hashFiles('**/pyproject.toml') }}
@@ -157,7 +155,7 @@ jobs:
           ${{ runner.os }}-models-
 
     - name: Restore just command
-      uses: actions/cache@v2
+      uses: actions/cache/restore@v3
       with:
         path: ~/.cargo/bin
         key: ${{ runner.os }}-just-${{ hashFiles('**/justfile') }}
@@ -206,7 +204,7 @@ jobs:
         password: ${{ secrets.GH_WORKFLOW_TOKEN }}
 
     - name: Restore target directory
-      uses: actions/cache@v2
+      uses: actions/cache/restore@v3
       with:
         path: ./target
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
@@ -263,7 +261,7 @@ jobs:
       run: cargo binstall cargo-release --locked -y
 
     - name: Restore target directory
-      uses: actions/cache@v2
+      uses: actions/cache/restore@v3
       with:
         path: target
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
