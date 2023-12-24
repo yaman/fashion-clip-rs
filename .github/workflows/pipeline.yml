@@ -33,10 +33,12 @@ jobs:
     steps:
     - name: Check cache for models directory
       id: cache-check
-      uses: actions/cache/restore@v3
+      uses: actions/cache@v3
       with:
         path: models
         key: ${{ runner.os }}-models-${{ hashFiles('**/config.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-models-
 
   download_models:
     runs-on: self-hosted
@@ -59,10 +61,12 @@ jobs:
         optimum-cli export onnx -m patrickjohncyh/fashion-clip --task feature-extraction models/image
     
     - name: Cache models directory
-      uses: actions/cache/save@v3
+      uses: actions/cache@v3
       with:
         path: models
         key: ${{ runner.os }}-models-${{ hashFiles('**/config.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-models-
     - name: Notify Discord
       if: always()
       uses: rjstone/discord-webhook-notify@v1
@@ -99,10 +103,12 @@ jobs:
       run: cargo binstall just --locked -y
 
     - name: Cache just command
-      uses: actions/cache/save@v3
+      uses: actions/cache@v3
       with:
         path: ~/.cargo/bin
         key: ${{ runner.os }}-just-${{ hashFiles('**/justfile') }}
+        restore-keys: |
+          ${{ runner.os }}-just-
 
     - name: Run sccache-cache
       uses: mozilla-actions/sccache-action@v0.0.3
@@ -116,10 +122,13 @@ jobs:
       run: just build
 
     - name: Cache target directory
-      uses: actions/cache/save@v3
+      uses: actions/cache@v3
       with:
         path: ./target
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
+
     - name: Notify Discord
       if: always()
       uses: rjstone/discord-webhook-notify@v1
@@ -147,7 +156,7 @@ jobs:
         override: true
 
     - name: Restore models directory
-      uses: actions/cache/restore@v3
+      uses: actions/cache@v3
       with:
         path: models
         key: ${{ runner.os }}-models-${{ hashFiles('**/config.toml') }}
@@ -155,7 +164,7 @@ jobs:
           ${{ runner.os }}-models-
 
     - name: Restore just command
-      uses: actions/cache/restore@v3
+      uses: actions/cache@v3
       with:
         path: ~/.cargo/bin
         key: ${{ runner.os }}-just-${{ hashFiles('**/justfile') }}
@@ -204,7 +213,7 @@ jobs:
         password: ${{ secrets.GH_WORKFLOW_TOKEN }}
 
     - name: Restore target directory
-      uses: actions/cache/restore@v3
+      uses: actions/cache@v3
       with:
         path: ./target
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
@@ -261,7 +270,7 @@ jobs:
       run: cargo binstall cargo-release --locked -y
 
     - name: Restore target directory
-      uses: actions/cache/restore@v3
+      uses: actions/cache@v3
       with:
         path: target
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
