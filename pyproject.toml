@@ -17,7 +17,7 @@ tokenizer = "^3.4.3"
 transformers = "^4.35.2"
 six = "^1.16.0"
 torchvision = "^0.16.1"
-pillow = "^10.2.0"
+pillow = "^10.3.0"
 rembg = "^2.0.52"
 
 [tool.poetry.group.dev.dependencies]
