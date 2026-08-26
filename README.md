@@ -1,4 +1,5 @@
 
+
 # fashion-clip-rs: fashion-clip service in Rust
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
@@ -124,7 +125,7 @@ fashion-clip-rs can also be used as a library in Rust projects.
 
 Add library to your project:
 ```bash
-cargo add fashion_clip_rs
+cargo add fashion-clip-rs
 ```
 
 given model is exported to onnx with following model structure under models/text:
@@ -207,4 +208,3 @@ For questions or feedback, please reach out to [yaman](https://github.com/yaman)
 ## Author
 
 This project was created by [Yaman](https://github.com/yaman).
-
